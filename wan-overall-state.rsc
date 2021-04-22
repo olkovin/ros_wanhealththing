@@ -12,11 +12,18 @@
 
 :set wanoverallstate ($isp1gw + $isp2gw + $isp3gw + $extmon1 + $extmon2 + $extmon3)
 
-    :if (\$wanoverallstate < 3) do={
-        :log warning "WAN Overall state is abnormaly low... trying to reload netwatch metrics..."
-        /tool netwatch set disabled=yes [find where comment~"^wanhealththing"]
-        :delay 1
-        /tool netwatch set disabled=no [find where comment~"^wanhealththing"]
-        :log warning "Netwatch metrics reloaded!"
-        :set $abnormalstate ($abnormalstate + 1)
+    :if ($wanoverallstate < 3) do={
+        :if ($abnormalstate < 3) do={
+            :log warning "WAN Overall state is abnormaly low... trying to reload netwatch metrics..."
+            /tool netwatch set disabled=yes [find where comment~"^wanhealththing"]
+            :delay 1
+            /tool netwatch set disabled=no [find where comment~"^wanhealththing"]
+            :log warning "Netwatch metrics reloaded!"
+            :set $abnormalstate ($abnormalstate + 1)
+        } else={
+                :if ($abnormalstate > 3) do={
+                :log error "Error! After couple netwatch metric reloads, WAN overall state is still abnormal. Slow mode enabled."
+                # some slow check need to be activated
+            }
+        }
     }
