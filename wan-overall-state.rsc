@@ -13,7 +13,7 @@
 :set $wanoverallstate ($isp1gw + $isp2gw + $isp3gw + $extmon1 + $extmon2 + $extmon3)
 
     :if ($wanoverallstate < 3) do={
-        :if ($abnormalcounter < 3) do={
+        :if ($abnormalcounter <= 3) do={
             :log warning "WAN Overall state is abnormaly low... trying to reload netwatch metrics..."
             /tool netwatch set disabled=yes [find where comment~"^wanhealththing"]
             :delay 1
@@ -27,5 +27,7 @@
             }
         }
     } else={
-        :set $abnormalcounter ($abnormalcounter - 1)
+        :if ($abnormalcounter > 0) do={
+            :set $abnormalcounter ($abnormalcounter - 1)
+        }
     }
