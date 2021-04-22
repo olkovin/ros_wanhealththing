@@ -48,19 +48,24 @@
                 :if ($currentISP = "ISP1" && $isp1gw = 0) do={
                     :set $currentISP ($nextbackupISP)
                     :set $nextbackupISP "none"
+                    #need tp change ISP using ISPstates
                     :log warning "Default ISP was changed to $nextbackupISP"
+                    #need to determine new nextbackup
                 } else={
                     # Check ISP2
                     :if ($currentISP = "ISP2" && $isp2gw = 0) do={
                         :set $currentISP ($nextbackupISP)
                         :set $nextbackupISP "none"
+                        #need tp change ISP using ISPstates
                         :log warning "Default ISP was changed to $nextbackupISP"
+                        #need to determine new nextbackup
                     } 
                     } else={
                         # Check ISP3
                         :if ($currentISP = "ISP3" && $isp3gw = 0) do={
                             :set $currentISP ($nextbackupISP)
                             :set $nextbackupISP "none"
+                            #need tp change ISP using ISPstates
                             :log warning "Default ISP was changed to $nextbackupISP"
                             #need to determine new nextbackup
                         }
@@ -68,8 +73,11 @@
             # Actions when with ISP gate is OK, but something was happened with external monitored hosts
             } else={
                 :if ($wanmonstate < 2) do={
-                    # change to next backup
-                    # determine next backup
+                    :set $currentISP ($nextbackupISP)
+                    :set $nextbackupISP "none"
+                    #need tp change ISP using ISPstates
+                    :log warning "Default ISP was changed to $nextbackupISP"
+                    #need to determine new nextbackup
                 } else={
                     # At this moment, all seems to be great with external hosts, so just waiting for recheck.
                     # Perhaps this event-point must be counted
