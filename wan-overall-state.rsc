@@ -47,18 +47,22 @@
                 # Check ISP1
                 :if ($currentISP = "ISP1" && $isp1gw = 0) do={
                     :set $currentISP ($nextbackupISP)
+                    :set $nextbackupISP "none"
                     :log warning "Default ISP was changed to $nextbackupISP"
                 } else={
                     # Check ISP2
                     :if ($currentISP = "ISP2" && $isp2gw = 0) do={
                         :set $currentISP ($nextbackupISP)
+                        :set $nextbackupISP "none"
                         :log warning "Default ISP was changed to $nextbackupISP"
                     } 
                     } else={
                         # Check ISP3
                         :if ($currentISP = "ISP3" && $isp3gw = 0) do={
                             :set $currentISP ($nextbackupISP)
+                            :set $nextbackupISP "none"
                             :log warning "Default ISP was changed to $nextbackupISP"
+                            #need to determine new nextbackup
                         }
                 }
             # Actions when with ISP gate is OK, but something was happened with external monitored hosts
