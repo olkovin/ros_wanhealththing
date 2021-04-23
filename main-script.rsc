@@ -67,7 +67,6 @@
                         :log info "currentISP was changed to $1backupISP"
                         :log info "1backupISP was changed to $2backupISP"
                         :log info "2backupISP was changed to $curentISP"
-                    } 
                     } else={
                         # Check ISP3
                         :if ($currentISP = "ISP3" && $isp3gw = 0) do={
@@ -82,6 +81,7 @@
                             :log info "1backupISP was changed to $2backupISP"
                             :log info "2backupISP was changed to $curentISP"
                         }
+                     }
                 }
             # Actions when with ISP gate is OK, but something was happened with external monitored hosts
             } else={
