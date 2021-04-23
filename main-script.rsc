@@ -42,14 +42,14 @@
             }
                 #:log warning "DEBUG POINT 1";
                 # Determing current ISP priority
-                :set $currentISP ([:pick [ip route get value-name=comment number=[find where distance=11 && comment~"DRV"]] 0 7])
-                :set $1backupISP ([:pick [ip route get value-name=comment number=[find where distance=22 && comment~"DRV"]] 0 7])
-                :set $2backupISP ([:pick [ip route get value-name=comment number=[find where distance=33 && comment~"DRV"]] 0 7])
+                :set $currentISP ([:pick [ip route get value-name=comment number=[find where distance=11 && comment~"DRV"]] 0 7]);
+                :set $1backupISP ([:pick [ip route get value-name=comment number=[find where distance=22 && comment~"DRV"]] 0 7]);
+                :set $2backupISP ([:pick [ip route get value-name=comment number=[find where distance=33 && comment~"DRV"]] 0 7]);
                 #:log warning "DEBUG POINT 2";
              # Actions when something was happened with ISP gateway
                 :if ($wanispstate != 3) do={
                    # Check ISP1
-                  :if ($currentISP = "ISP1" && $isp1gw = 0) do={
+                  :if ($currentISP = "DRVISP1" && $isp1gw = 0) do={
                       # Change IPS pririty
                       # debug:
                       :log warning "DEBUG: Switching ISP when ISP1 health is BAD!"
@@ -62,7 +62,7 @@
                         :log info "2backupISP was changed to $currentISP"
                     } else={
                        # Check ISP2
-                       :if ($currentISP = "ISP2" && $isp2gw = 0) do={
+                       :if ($currentISP = "DRVISP2" && $isp2gw = 0) do={
                          # Change IPS pririty
                           # debug:
                           :log warning "DEBUG: Switching ISP when ISP2 health is BAD!"
@@ -75,7 +75,7 @@
                            :log info "2backupISP was changed to $currentISP"
                       } else={
                         # Check ISP3
-                        :if ($currentISP = "ISP3" && $isp3gw = 0) do={
+                        :if ($currentISP = "DRVISP3" && $isp3gw = 0) do={
                             # Change IPS pririty
                             # debug:
                             :log warning "DEBUG: Switching ISP when ISP3 health is BAD!"
@@ -114,5 +114,5 @@
     } else={
         # WAN health is great!
         # debug:
-        :log info "DEBUG: WAN health is great!"
+        #:log info "DEBUG: WAN health is great!"
     }
