@@ -36,7 +36,7 @@
             # Decrease abnormalcounter when all is good with netwatch metrics
             :if ($abnormalcounter > 0) do={
                 :set $abnormalcounter ($abnormalcounter - 1)
-                # Determing curent ISP priority
+                # Determing current ISP priority
                 :local currentISP [:pick [ip route get value-name=comment number=[find where distance=11]] 3 7];
                 :local 1backupISP [:pick [ip route get value-name=comment number=[find where distance=22]] 3 7];
                 :local 2backupISP [:pick [ip route get value-name=comment number=[find where distance=33]] 3 7];
@@ -53,7 +53,7 @@
                     #need tp change ISP using ISPstates
                     :log info "currentISP was changed to $1backupISP"
                     :log info "1backupISP was changed to $2backupISP"
-                    :log info "2backupISP was changed to $curentISP"
+                    :log info "2backupISP was changed to $currentISP"
                 } else={
                     # Check ISP2
                     :if ($currentISP = "ISP2" && $isp2gw = 0) do={
@@ -66,7 +66,7 @@
                         #need tp change ISP using ISPstates
                         :log info "currentISP was changed to $1backupISP"
                         :log info "1backupISP was changed to $2backupISP"
-                        :log info "2backupISP was changed to $curentISP"
+                        :log info "2backupISP was changed to $currentISP"
                     } else={
                         # Check ISP3
                         :if ($currentISP = "ISP3" && $isp3gw = 0) do={
@@ -79,7 +79,7 @@
                             # Informing about changes
                             :log info "currentISP was changed to $1backupISP"
                             :log info "1backupISP was changed to $2backupISP"
-                            :log info "2backupISP was changed to $curentISP"
+                            :log info "2backupISP was changed to $currentISP"
                         }
                      }
                 }
@@ -94,7 +94,7 @@
                     # Informing about changes
                     :log info "currentISP was changed to $1backupISP"
                     :log info "1backupISP was changed to $2backupISP"
-                    :log info "2backupISP was changed to $curentISP"
+                    :log info "2backupISP was changed to $currentISP"
                 } else={
                     # At this moment, all seems to be great with external hosts, so just waiting for recheck.
                     # Perhaps this event-point must be counted
