@@ -46,7 +46,7 @@
                 :if ($currentISP = "ISP1" && $isp1gw = 0) do={
                     # Change IPS pririty
                     # debug:
-                    :log info warning "DEBUG: Switching ISP when ISP1 health is BAD!"
+                    :log warning "DEBUG: Switching ISP when ISP1 health is BAD!"
                     #ip route set distance=33 [find where comment~"$currentISP"]
                     #ip route set distance=22 [find where comment~"$2backupISP"]
                     #ip route set distance=11 [find where comment~"$1backupISP"]
@@ -59,7 +59,7 @@
                     :if ($currentISP = "ISP2" && $isp2gw = 0) do={
                         # Change IPS pririty
                         # debug:
-                        :log info warning "DEBUG: Switching ISP when ISP2 health is BAD!"
+                        :log warning "DEBUG: Switching ISP when ISP2 health is BAD!"
                         #ip route set distance=33 [find where comment~"$currentISP"]
                         #ip route set distance=22 [find where comment~"$2backupISP"]
                         #ip route set distance=11 [find where comment~"$1backupISP"]
@@ -73,7 +73,7 @@
                         :if ($currentISP = "ISP3" && $isp3gw = 0) do={
                             # Change IPS pririty
                             # debug:
-                            :log info warning "DEBUG: Switching ISP when ISP3 health is BAD!"
+                            :log warning "DEBUG: Switching ISP when ISP3 health is BAD!"
                              #ip route set distance=33 [find where comment~"$currentISP"]
                              #ip route set distance=22 [find where comment~"$2backupISP"]
                              #ip route set distance=11 [find where comment~"$1backupISP"]
