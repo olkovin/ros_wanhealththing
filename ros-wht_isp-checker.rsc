@@ -11,33 +11,74 @@
 :global ISP1hp
 :global ISP2hp
 :global ISP3hp
-:global healthcheck1
-:global healthcheck2
-:global healthcheck3
-:global pinginterval
-:global pingcount
+
+# You can change it to whatever host you want to use as healthcheck
+# If there is default, 1.1.1.1, 9.9.9.9 and 8.8.8.8 will be used in healthcheck 
+:global HCaddr1 "default"
+:global HCaddr2 "default"
+:global HCaddr3 "default"
+
+# You can change ping interval and pings count to whatever you need
+# Default values is 0.5s for ping interval and 4 for the pingscount
+# Hint: lowering interval is more suitable for more stable connections
+# Hint: 
+:global pingsinterval "default"
+:global pingscount "default"
 :global DebugIsOn
 
-# Checking if there is pinging parameters set
+# Checking if there are pinging parameters and healthchecks was set
 # If not, setting to default
-:if ($pinginterval = nothing) do={
-    :set $pinginterval "0.5"
+:if ($pingsinterval = "default") do={
+    :set $pingsinterval "0.5"
 
     # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default pinginterval = $pinginterval"
+        :log warning "row-wht_isp-checker:  Used default pingsinterval = $pingsinterval"
         :log warning ""
     }
 }
 
-:if ($pingcount = nothing) do={
-    :set $pingcount "4"
+:if ($pingscount = "default") do={
+    :set $pingscount "4"
 
     # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default pingcount = $pingcount"
+        :log warning "row-wht_isp-checker:  Used default pingscount = $pingscount"
+        :log warning ""
+    }
+}
+
+:if ($HCaddr1 = "default") do={
+    :set $HCaddr1 "1.1.1.1"
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "row-wht_isp-checker:  Used default HCaddr1 = $HCaddr1"
+        :log warning ""
+    }
+}
+
+:if ($HCaddr2 = "default") do={
+    :set $HCaddr2 "9.9.9.9"
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "row-wht_isp-checker:  Used default HCaddr2 = $HCaddr2"
+        :log warning ""
+    }
+}
+
+:if ($HCaddr3 = "default") do={
+    :set $HCaddr3 "8.8.8.8"
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "row-wht_isp-checker:  Used default HCaddr3 = $HCaddr3"
         :log warning ""
     }
 }
@@ -52,9 +93,10 @@
     :local ISP1partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP1partialstate1 [/ping $healthcheck1 interval=$pinginterval count=$pingcount routing-table=isp1-hc-table] 
-    :set $ISP1partialstate2 [/ping $healthcheck2 interval=$pinginterval count=$pingcount routing-table=isp1-hc-table]
-    :set $ISP1partialstate3 [/ping $healthcheck3 interval=$pinginterval count=$pingcount routing-table=isp1-hc-table]
+    :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table] 
+    :set $ISP1partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table]
+    :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table]
+
     :set $ISP1hp ($ISP1partialstate1+$ISP1partialstate2+$ISP1partialstate3)
 
     } else={
@@ -76,9 +118,9 @@
     :local ISP2partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP2partialstate1 [/ping $healthcheck1 interval=$pinginterval count=$pingcount routing-table=isp2-hc-table] 
-    :set $ISP2partialstate2 [/ping $healthcheck2 interval=$pinginterval count=$pingcount routing-table=isp2-hc-table]
-    :set $ISP2partialstate3 [/ping $healthcheck3 interval=$pinginterval count=$pingcount routing-table=isp2-hc-table]
+    :set $ISP2partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table] 
+    :set $ISP2partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table]
+    :set $ISP2partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table]
     :set $ISP2hp ($ISP2partialstate1+$ISP2partialstate2+$ISP2partialstate3)
 
     } else={
@@ -97,9 +139,9 @@
     :local ISP3partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP3partialstate1 [/ping $healthcheck1 interval=$pinginterval count=$pingcount routing-table=isp3-hc-table] 
-    :set $ISP3partialstate2 [/ping $healthcheck2 interval=$pinginterval count=$pingcount routing-table=isp3-hc-table]
-    :set $ISP3partialstate3 [/ping $healthcheck3 interval=$pinginterval count=$pingcount routing-table=isp3-hc-table]
+    :set $ISP3partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table] 
+    :set $ISP3partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table]
+    :set $ISP3partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table]
     :set $ISP3hp ($ISP3partialstate1+$ISP3partialstate2+$ISP3partialstate3)
 
     } else={
