@@ -2,8 +2,10 @@
 # t.me/olekovin
 #
 # Part of the overall script group
-# Client ISP Actioner part
-#
+# ISP Actioner part
+# ros-wht_icp
+
+
 #
 # For the STATIC ISP type, there must be IP->ADDRESS and default route with comment ISP1 or ISP2
 # For the DHCP (DYNAMIC) type, there must be IP->DHCP-CLIENT with comment ISP1 or ISP2

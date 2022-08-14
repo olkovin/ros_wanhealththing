@@ -3,7 +3,7 @@
 # github.com/olkovin/ros_wanhealththing
 # Part of the overall script group
 # Device ISP state determinator part
-# ros-wht_isp-checker.rsc
+# ros-wht_isc
 
 # Global vars
 :global ISP1present
@@ -30,7 +30,7 @@
 
 # Duplication run handler
 # Check if checker is already running now, dont do anything.
-:if ([/system script job print as-value count-only where script="ros-wht_isp-checker"] <= 1) do={
+:if ([/system script job print as-value count-only where script="ros-wht_isc"] <= 1) do={
 
 # Checking if there are pinging parameters and healthchecks was set
 # If not, setting to default

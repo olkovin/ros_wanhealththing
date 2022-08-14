@@ -3,6 +3,7 @@
 #
 # Part of the overall script group
 # HealtCheck gateway processing unit
+# ros-wht_hcgwc
 
 :global cliISP1type
 :global cliISP2type
