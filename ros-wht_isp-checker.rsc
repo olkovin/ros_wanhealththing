@@ -3,6 +3,7 @@
 # github.com/olkovin/ros_wanhealththing
 # Part of the overall script group
 # Device ISP state determinator part
+# ros-wht_isp-checker.rsc
 
 # Global vars
 :global ISP1present
@@ -25,6 +26,11 @@
 :global pingsinterval "default"
 :global pingscount "default"
 :global DebugIsOn
+
+
+# Duplication run handler
+# Check if checker is already running now, dont do anything.
+:if ([/system script job print as-value count-only where script="ros-wht_isp-checker"] <= 1) do={
 
 # Checking if there are pinging parameters and healthchecks was set
 # If not, setting to default
@@ -133,6 +139,9 @@
             :set $ISP2hp 0
     }
 
+    # Passing state of the ISP3
+    :if ($ISP3present) do={
+
     # Local vars
     :local ISP3partialstate1
     :local ISP3partialstate2
@@ -148,8 +157,9 @@
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "row-wht_isp-checker:  There is no ISP3 configured. Skipping and setting the ISP3hp to 0."
+                :log warning "row-wht_isp-checker:  There is no ISP3 configured. Skipping and setting the ISP2hp to 0."
                 :log warning ""
             }
             :set $ISP3hp 0
     }
+}
