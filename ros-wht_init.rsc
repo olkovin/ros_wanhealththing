@@ -218,7 +218,7 @@
     :do {
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
         } on-error={
-            :set $ISP2currentHCGW "169.254.0.1"
+            :set $ISP2currentHCGW "169.254.0.2"
             :local ISP2hcNeedToBeDeployed true
             }
             # Deploy ISP2_HC_RT if needed.
@@ -309,7 +309,7 @@
     :do {
         :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
         } on-error={
-            :set $ISP3currentHCGW "169.254.0.1"
+            :set $ISP3currentHCGW "169.254.0.3"
             :local ISP3hcNeedToBeDeployed true
             }
             # Deploy ISP3_HC_RT if needed.
