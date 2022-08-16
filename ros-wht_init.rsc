@@ -2,18 +2,16 @@
 # t.me/olekovin
 #
 # Part of the overall script group
-# ISP Actioner part
-
-# Part of the overall script group
 # Provider count and type determinator part
 #
 # !!!Will determine only on boot!!!
-# init script. will start on boot
 #
 #
 #
 # ISP(X)_DGW_RT must be set on all of the ISP static routes, where (X) is the number from 1 to 3.
-# e.g. ISP1_DGW_RT
+# Also, ISP(X) must be set on the corresponding interfaces and DHCP-clients
+# e.g. ISP1_DGW_RT or ISP1
+
 
 
 # Global vars
@@ -123,22 +121,23 @@
 # Set and Deploy HealthCheck GW for ISP1 in case when ISP1 type is present
 #
 :if ($ISP1present) do={
+    # Getting current ISP1_HC_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC_RT"]]
+        } on-error={
+            :set $ISP1currentHCGW "169.254.0.1"
+            :local ISP1hcNeedToBeDeployed true
+            }
+            # Deploy ISP1_HC_RT if needed.
+            :if ($ISP1hcNeedToBeDeployed) do={
+                /ip route add check-gateway=ping comment="ISP1_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
+                }
+
+                
     # ISP1 is static
         :if ($ISP1type = "STATIC") do={
-                # Getting current ISP1_HC_GW for comparison
-                :do {
-                    :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC_RT"]]
-                    } on-error={
-                        :set $ISP1currentHCGW "169.40.4.1"
-                        :local ISP1hcNeedToBeDeployed true
-                        }
-
+                # Getting current ISP1_DGW_RT for comparison
                 :local ISP1staticGW [/ip route get value-name=gateway [find where comment~"ISP1_DGW_RT"]]
-                   
-                    # Deploy ISP1_HC_RT if needed.
-                        :if ($ISP1hcNeedToBeDeployed) do={
-                            /ip route add check-gateway=ping comment="ISP1_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
-                            }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP1currentHCGW != $ISP1staticGW) do={
@@ -162,9 +161,14 @@
                                     }
         } else={
             :if ($ISP1type = "DHCP") do={
-                # Getting current ISP1_HC_GW for comparison
-                :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC_RT"]]
+                # Getting current ISP1dhcpGW for comparison
                 :global ISP1dhcpGW
+                # If there is no ISP1dhcpGW, initialize DHCP-script adding
+                :if ($ISP1dhcpGW = nothing) do={
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP1dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP1"]
+                    :delay 5
+                }
+
                 # Realising compare logic for DHCP.
                 :if ($ISP1currentHCGW != $ISP1dhcpGW) do={
                     # Situation when current HC GW is different with new
@@ -210,22 +214,23 @@
 # Set and Deploy HealthCheck GW for ISP2 in case when ISP2 type is present
 #
 :if ($ISP2present) do={
+    # Getting current ISP2_HC_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
+        } on-error={
+            :set $ISP2currentHCGW "169.254.0.1"
+            :local ISP2hcNeedToBeDeployed true
+            }
+            # Deploy ISP2_HC_RT if needed.
+            :if ($ISP2hcNeedToBeDeployed) do={
+                /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP2_hc_rt
+                }
+
+                
     # ISP2 is static
         :if ($ISP2type = "STATIC") do={
-                # Getting current ISP2_HC_GW for comparison
-                :do {
-                    :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
-                    } on-error={
-                        :set $ISP2currentHCGW "169.40.4.1"
-                        :local ISP2hcNeedToBeDeployed true
-                        }
-
+                # Getting current ISP2_DGW_RT for comparison
                 :local ISP2staticGW [/ip route get value-name=gateway [find where comment~"ISP2_DGW_RT"]]
-                   
-                    # Deploy ISP2_HC_RT if needed.
-                        :if ($ISP2hcNeedToBeDeployed) do={
-                            /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP2_hc_rt
-                            }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP2currentHCGW != $ISP2staticGW) do={
@@ -249,9 +254,14 @@
                                     }
         } else={
             :if ($ISP2type = "DHCP") do={
-                # Getting current ISP2_HC_GW for comparison
-                :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
+                # Getting current ISP2dhcpGW for comparison
                 :global ISP2dhcpGW
+                # If there is no ISP2dhcpGW, initialize DHCP-script adding
+                :if ($ISP2dhcpGW = nothing) do={
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP2"]
+                    :delay 5
+                }
+
                 # Realising compare logic for DHCP.
                 :if ($ISP2currentHCGW != $ISP2dhcpGW) do={
                     # Situation when current HC GW is different with new
@@ -295,22 +305,23 @@
 # Set and Deploy HealthCheck GW for ISP3 in case when ISP3 type is present
 #
 :if ($ISP3present) do={
+    # Getting current ISP3_HC_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
+        } on-error={
+            :set $ISP3currentHCGW "169.254.0.1"
+            :local ISP3hcNeedToBeDeployed true
+            }
+            # Deploy ISP3_HC_RT if needed.
+            :if ($ISP3hcNeedToBeDeployed) do={
+                /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP3_hc_rt
+                }
+
+                
     # ISP3 is static
         :if ($ISP3type = "STATIC") do={
-                # Getting current ISP3_HC_GW for comparison
-                :do {
-                    :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
-                    } on-error={
-                        :set $ISP3currentHCGW "169.40.4.1"
-                        :local ISP3hcNeedToBeDeployed true
-                        }
-
+                # Getting current ISP3_DGW_RT for comparison
                 :local ISP3staticGW [/ip route get value-name=gateway [find where comment~"ISP3_DGW_RT"]]
-                   
-                    # Deploy ISP3_HC_RT if needed.
-                        :if ($ISP3hcNeedToBeDeployed) do={
-                            /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP3_hc_rt
-                            }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP3currentHCGW != $ISP3staticGW) do={
@@ -334,9 +345,14 @@
                                     }
         } else={
             :if ($ISP3type = "DHCP") do={
-                # Getting current ISP3_HC_GW for comparison
-                :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
+                # Getting current ISP3dhcpGW for comparison
                 :global ISP3dhcpGW
+                # If there is no ISP3dhcpGW, initialize DHCP-script adding
+                :if ($ISP3dhcpGW = nothing) do={
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP3"]
+                    :delay 5
+                }
+
                 # Realising compare logic for DHCP.
                 :if ($ISP3currentHCGW != $ISP3dhcpGW) do={
                     # Situation when current HC GW is different with new
