@@ -9,18 +9,59 @@
 #
 #
 # ISP(X)_DGW_RT must be set on all of the ISP static routes, where (X) is the number from 1 to 3.
+# e.g. ISP1_DGW_RT
 # Also, ISP(X) must be set on the corresponding interfaces and DHCP-clients
-# e.g. ISP1_DGW_RT or ISP1
+# e.g. ISP1
 
 
+# You can change it to whatever host you want to use as healthcheck
+# If there is default, 1.1.1.1, 9.9.9.9 and 8.8.8.8 will be used in healthcheck 
+:global HCaddr1 "default"
+:global HCaddr2 "default"
+:global HCaddr3 "default"
+
+# You can change ping interval and pings count to whatever you need
+# Default values is 0.5s for ping interval and 4 for the pingscount
+# Hint: lowering interval is more suitable for more stable connections
+# Hint: 
+:global pingsinterval "default"
+:global pingscount "default"
 
 # Global vars
 :global ISP1present
 :global ISP2present
 :global ISP3present
-:global ISP1type
-:global ISP2type
-:global ISP3type
+
+:if ($ISP1present) do={
+    :global ISP1type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP1 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
+:if ($ISP2present) do={
+    :global ISP2type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP2 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
+:if ($ISP3present) do={
+    :global ISP3type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP3 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
 :global DebugIsOn
 
 # Local vars
@@ -127,11 +168,20 @@
         } on-error={
             :set $ISP1currentHCGW "169.254.0.1"
             :local ISP1hcNeedToBeDeployed true
+
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: Error when getting ISP1_HC_RT params, perhaps RTR is missing..."
+                :log warning "$scriptname: Adding a new one..."
+                :log warning "$scriptname: ISP1currentHCGW: $ISP1currentHCGW"
+                :log warning "$scriptname: ISP1hcNeedToBeDeployed: $ISP1hcNeedToBeDeployed"
             }
-            # Deploy ISP1_HC_RT if needed.
+
+                        # Deploy ISP1_HC_RT if needed.
             :if ($ISP1hcNeedToBeDeployed) do={
                 /ip route add check-gateway=ping comment="ISP1_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
                 }
+            }
 
                 
     # ISP1 is static
@@ -166,6 +216,8 @@
                 # If there is no ISP1dhcpGW, initialize DHCP-script adding
                 :if ($ISP1dhcpGW = nothing) do={
                     /ip dhcp-client set script=":if (\$bound=1) do={:global ISP1dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP1"]
+                    /ip dhcp-client set disabled=yes [find where comment="ISP1"]
+                    /ip dhcp-client set disabled=no [find where comment="ISP1"]
                     :delay 5
                 }
 
@@ -196,7 +248,7 @@
                                         }
                                         }
 
-        } else ={
+        } else={
             # there is no ISP1
              :if ($DebugIsOn) do={
                                     :log warning ""
@@ -220,11 +272,20 @@
         } on-error={
             :set $ISP2currentHCGW "169.254.0.2"
             :local ISP2hcNeedToBeDeployed true
+
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: Error when getting ISP2_HC_RT params, perhaps RTR is missing..."
+                :log warning "$scriptname: Adding a new one..."
+                :log warning "$scriptname: ISP2currentHCGW: $ISP2currentHCGW"
+                :log warning "$scriptname: ISP2hcNeedToBeDeployed: $ISP2hcNeedToBeDeployed"
             }
-            # Deploy ISP2_HC_RT if needed.
+
+                        # Deploy ISP2_HC_RT if needed.
             :if ($ISP2hcNeedToBeDeployed) do={
                 /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP2_hc_rt
                 }
+            }
 
                 
     # ISP2 is static
@@ -259,6 +320,8 @@
                 # If there is no ISP2dhcpGW, initialize DHCP-script adding
                 :if ($ISP2dhcpGW = nothing) do={
                     /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP2"]
+                    /ip dhcp-client set disabled=yes [find where comment="ISP2"]
+                    /ip dhcp-client set disabled=no [find where comment="ISP2"]
                     :delay 5
                 }
 
@@ -289,7 +352,7 @@
                                         }
                                         }
 
-        } else ={
+        } else={
             # there is no ISP2
              :if ($DebugIsOn) do={
                                     :log warning ""
@@ -301,6 +364,8 @@
         ##
         #
 
+
+
 #
 # Set and Deploy HealthCheck GW for ISP3 in case when ISP3 type is present
 #
@@ -311,11 +376,20 @@
         } on-error={
             :set $ISP3currentHCGW "169.254.0.3"
             :local ISP3hcNeedToBeDeployed true
+
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: Error when getting ISP3_HC_RT params, perhaps RTR is missing..."
+                :log warning "$scriptname: Adding a new one..."
+                :log warning "$scriptname: ISP3currentHCGW: $ISP3currentHCGW"
+                :log warning "$scriptname: ISP3hcNeedToBeDeployed: $ISP3hcNeedToBeDeployed"
             }
-            # Deploy ISP3_HC_RT if needed.
+
+                        # Deploy ISP3_HC_RT if needed.
             :if ($ISP3hcNeedToBeDeployed) do={
                 /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP3_hc_rt
                 }
+            }
 
                 
     # ISP3 is static
@@ -350,6 +424,8 @@
                 # If there is no ISP3dhcpGW, initialize DHCP-script adding
                 :if ($ISP3dhcpGW = nothing) do={
                     /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP3"]
+                    /ip dhcp-client set disabled=yes [find where comment="ISP3"]
+                    /ip dhcp-client set disabled=no [find where comment="ISP3"]
                     :delay 5
                 }
 
@@ -380,7 +456,7 @@
                                         }
                                         }
 
-        } else ={
+        } else={
             # there is no ISP3
              :if ($DebugIsOn) do={
                                     :log warning ""
@@ -392,11 +468,18 @@
         ##
         #
 
+
+
 ###### HEALTH CHECKS AND ROUTING TABLES ########
 
 
-
+:if (!$DebugIsOn) do={
 :delay 15
 # And finaly, back all of the our disabled deamons back
 
 /system scheduler set disabled=no [find where comment~"deamon" && comment~"init"]
+} else={
+    :log warning ""
+    :log warning "$scriptname: Reached end of the script..."
+    :log warning "$scriptname: Looks like all good :)"
+}
