@@ -21,7 +21,7 @@
 :global HCaddr3 "default"
 
 # You can change ping interval and pings count to whatever you need
-# Default values is 0.5s for ping interval and 4 for the pingscount
+# Default values is 1s for ping interval and 4 for the pingscount
 # Hint: lowering interval is more suitable for more stable connections
 # Hint: 
 :global pingsinterval "default"
@@ -66,6 +66,29 @@
 
 # Local vars
 :local scriptname "ros-wht_init"
+
+
+# Changing type of pingscount and pingsinterval
+:if ($pingscount != "default") do={
+    :tonum $pingscount
+
+:if ($DebugIsOn) do={
+    :log warning ""
+    :log warning "$scriptname: pingscount is not default."
+    :log warning "$scriptname: converting pingscount to number..."
+    }
+
+}
+
+:if ($pingsinterval != "default") do={
+    :tonum $pingsinterval
+
+    :if ($DebugIsOn) do={
+    :log warning ""
+    :log warning "$scriptname: pingsinterval is not default."
+    :log warning "$scriptname: converting pingsinterval to number..."
+    }
+}
 
 ################
 # ISPs types and count determinator v3
@@ -283,7 +306,7 @@
 
                         # Deploy ISP2_HC_RT if needed.
             :if ($ISP2hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP2_hc_rt
+                /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp2_hc_rt
                 }
             }
 
@@ -387,7 +410,7 @@
 
                         # Deploy ISP3_HC_RT if needed.
             :if ($ISP3hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=ISP3_hc_rt
+                /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp3_hc_rt
                 }
             }
 

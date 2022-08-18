@@ -8,23 +8,23 @@
 # Global vars
 :global ISP1present
 :global ISP2present
-:global ISP2present
-:global ISP1hp
-:global ISP2hp
-:global ISP3hp
+:global ISP3present
 
-# You can change it to whatever host you want to use as healthcheck
+# Local vars
+:local scriptname "ros-wht_isc"
+
+# You can change it to whatever host you want to use as healthcheck in the iit script
 # If there is default, 1.1.1.1, 9.9.9.9 and 8.8.8.8 will be used in healthcheck 
-:global HCaddr1 "default"
-:global HCaddr2 "default"
-:global HCaddr3 "default"
+:global HCaddr1
+:global HCaddr2
+:global HCaddr3
 
 # You can change ping interval and pings count to whatever you need
 # Default values is 0.5s for ping interval and 4 for the pingscount
 # Hint: lowering interval is more suitable for more stable connections
 # Hint: 
-:global pingsinterval "default"
-:global pingscount "default"
+:global pingsinterval
+:global pingscount
 :global DebugIsOn
 
 
@@ -32,26 +32,44 @@
 # Check if checker is already running now, dont do anything.
 :if ([/system script job print as-value count-only where script="ros-wht_isc"] <= 1) do={
 
-# Checking if there are pinging parameters and healthchecks was set
-# If not, setting to default
-:if ($pingsinterval = "default") do={
-    :set $pingsinterval "0.5"
+    # Fixing the script running time in debug mode
+        :if ($DebugIsOn) do={
+            :global ScriptRunStartTimeStamp [/system clock get time]
+                    :log warning ""
+                    :log warning "$scriptname:  ScriptRunStartTimeStamp is $ScriptRunStartTimeStamp"
+                    :log warning ""
+        }
 
     # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default pingsinterval = $pingsinterval"
+        :log warning "$scriptname:  STARTED"
+        :log warning ""
+    }
+
+
+# Checking if there are pinging parameters and healthchecks was set
+# If not, setting to default
+:if ($pingsinterval = "default") do={
+    :set $pingsinterval "1"
+
+    # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Used default pingsinterval = $pingsinterval"
+        :log warning "$scriptname: pingsinterval is $pingsinterval"
         :log warning ""
     }
 }
 
 :if ($pingscount = "default") do={
-    :set $pingscount "4"
+    :set $pingscount "2"
 
     # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default pingscount = $pingscount"
+        :log warning "$scriptname:  Used default pingscount = $pingscount"
+        :log warning "$scriptname: pingscount is $pingscount"
         :log warning ""
     }
 }
@@ -62,7 +80,7 @@
         # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default HCaddr1 = $HCaddr1"
+        :log warning "$scriptname:  Used default HCaddr1 = $HCaddr1"
         :log warning ""
     }
 }
@@ -73,7 +91,7 @@
         # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default HCaddr2 = $HCaddr2"
+        :log warning "$scriptname:  Used default HCaddr2 = $HCaddr2"
         :log warning ""
     }
 }
@@ -84,14 +102,151 @@
         # Displaying debug info, if DebuIsOn True
     :if ($DebugIsOn) do={
         :log warning ""
-        :log warning "row-wht_isp-checker:  Used default HCaddr3 = $HCaddr3"
+        :log warning "$scriptname:  Used default HCaddr3 = $HCaddr3"
         :log warning ""
     }
+}
+
+# Incorrect type of vars fix
+:local typeofpingscount [:typeof $pingscount]
+
+        # Displaying debug info, if DebuIsOn True
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname:  typeofpingscount type succesfully get"
+            :log warning "$scriptname: typeofpingscount is $typeofpingscount"
+            :log warning ""
+        }
+
+:if ($typeofpingscount != "num") do={
+        /system script environment remove [find where name=pingscount]
+        :global pingscount 4
+        :local typeofpingscount [:typeof $pingscount]
+        :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname: Error, when tring to use pingscount"
+        :log warning "$scriptname: Perhaps pingscount was set from environment manualy."
+        :log warning "$scriptname: Will use the default values - $pingscount"
+        :log warning "$scriptname: typeofpingscount is $typeofpingscount"
+        :log warning ""
+        }
+}
+
+:local typeofpingsinterval [:typeof $pingsinterval]
+
+        # Displaying debug info, if DebuIsOn True
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname:  typeofpingsinterval type succesfully get"
+            :log warning "$scriptname: typeofpingsinterval is $typeofpingsinterval"
+            :log warning ""
+        }
+
+:if ($typeofpingsinterval != "num") do={
+        /system script environment remove [find where name=pingsinterval]
+        :global pingsinterval 1
+        :local typeofpingsinterval [:typeof $pingsinterval]
+
+        :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname: Error, when tring to use pingsinterval"
+        :log warning "$scriptname: Perhaps pingsinterval was set from environment manualy."
+        :log warning "$scriptname: Will use the default values - $pingsinterval"
+        :log warning "$scriptname: typeofpingsinterval is $typeofpingsinterval"
+        :log warning ""
+        }
+}
+
+# Incorrect scheduler interval fix
+:local ISPcount
+:if ($ISP1present) do={
+    :set $ISPcount ($ISPcount + 1)
+}
+:if ($ISP2present) do={
+    :set $ISPcount ($ISPcount + 1)
+}
+:if ($ISP3present) do={
+    :set $ISPcount ($ISPcount + 1)
+}
+
+:local currentISCinterval
+:local correctISCinterval ($ISPcount * 3 * $pingscount * $pingsinterval)
+
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname: intervaling debug point 1 pass :)"
+        :log warning "$scriptname: ISPcount is $ISPcount"
+        :log warning "$scriptname: correctISCinterval is $correctISCinterval"
+        :log warning ""
+    }
+
+:do {
+    :set $currentISCinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_isc | deamon"]]
+    } on-error={
+        # Displaying debug info, if DebuIsOn True
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname:  Error when getting $scriptname scheduler interval."
+            :log warning "$scriptname: Perhaps, there is no configured scheduler."
+            :log warning ""
+            }
+        :do {
+            # Displaying debug info, if DebuIsOn True
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: Adding the $scriptname scheduler..."
+                :log warning "$scriptname: Correct ISC interval is $correctISCinterval"
+                :log warning ""
+            }
+            /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$correctISCinterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler succesfully added!"
+                :log warning ""
+            }
+        } on-error={
+                :if ($DebugIsOn) do={
+                :log error ""
+                :log error "$scriptname: Error when trying to add missing $scriptname scheduler."
+                :log error "$scriptname: Unexcpected Error. Code MSSA_ERROR"
+                :log error ""
+            }
+        }
+    }
+
+:if ($currentISCinterval != $correctISCinterval) do={
+                
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler interval was setted incorrect."
+                :log warning "$scriptname: ISC interval was set to $correctISCinterval"
+                :log warning ""
+                }
+    /system scheduler set interval=$correctISCinterval [find where name~"$scriptname-deamon"]
+} else={
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler interval is correct."
+                :log warning "$scriptname: Nothing need to be done with it"
+                :log warning ""
+                }
 }
 
 ### Passing state of the providers getted from netwatch to global vars
     # Passing state of the ISP1
     :if ($ISP1present) do={
+    
+    # Initializing global var for ISP1 healhpoints
+    :global ISP1hp
+
+    # Debug info 
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Checking health of the ISP1"
+        :log warning ""
+    }
 
     # Local vars
     :local ISP1partialstate1
@@ -99,17 +254,25 @@
     :local ISP1partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table] 
-    :set $ISP1partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table]
-    :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1-hc-table]
+    :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt] 
+    :set $ISP1partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
+    :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
 
-    :set $ISP1hp ($ISP1partialstate1+$ISP1partialstate2+$ISP1partialstate3)
+    :set $ISP1hp ($ISP1partialstate1 + $ISP1partialstate2 + $ISP1partialstate3)
+
+    :if ($DebugIsOn) do={
+        :local ISP1hpVarType [:typeof $ISP1hp;]
+        :log warning ""
+        :log warning "$scriptname:  ISP1 healhpoint is $ISP1hp"
+        :log warning "ISP1hp vartype is $ISP1hpVarType"
+        :log warning ""
+    }
 
     } else={
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "row-wht_isp-checker:  There is no ISP1 configured. Skipping and setting the ISP1hp to 0."
+                :log warning "$scriptname:  There is no ISP1 configured. Skipping and setting the ISP1hp to 0."
                 :log warning ""
             }
             :set $ISP1hp 0
@@ -118,22 +281,41 @@
     # Passing state of the ISP2
     :if ($ISP2present) do={
 
+    # Initializing global var for ISP2 healhpoints
+    :global ISP2hp
+
+    # Debug info 
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Checking health of the ISP2"
+        :log warning ""
+    }
+
     # Local vars
     :local ISP2partialstate1
     :local ISP2partialstate2
     :local ISP2partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP2partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table] 
-    :set $ISP2partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table]
-    :set $ISP2partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp2-hc-table]
-    :set $ISP2hp ($ISP2partialstate1+$ISP2partialstate2+$ISP2partialstate3)
+    :set $ISP2partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt] 
+    :set $ISP2partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
+    :set $ISP2partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
+    
+    :set $ISP2hp ($ISP2partialstate1 + $ISP2partialstate2 + $ISP2partialstate3)
+
+    :if ($DebugIsOn) do={
+        :local ISP2hpVarType [:typeof $ISP2hp;]
+        :log warning ""
+        :log warning "$scriptname:  ISP2 healhpoint is $ISP2hp"
+        :log warning "ISP2hp vartype is $ISP2hpVarType"
+        :log warning ""
+    }
 
     } else={
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "row-wht_isp-checker:  There is no ISP2 configured. Skipping and setting the ISP2hp to 0."
+                :log warning "$scriptname:  There is no ISP2 configured. Skipping and setting the ISP2hp to 0."
                 :log warning ""
             }
             :set $ISP2hp 0
@@ -142,24 +324,74 @@
     # Passing state of the ISP3
     :if ($ISP3present) do={
 
+    # Initializing global var for ISP3 healhpoints
+    :global ISP3hp
+    
+    # Debug info 
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Checking health of the ISP3"
+        :log warning ""
+    }
+
     # Local vars
     :local ISP3partialstate1
     :local ISP3partialstate2
     :local ISP3partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP3partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table] 
-    :set $ISP3partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table]
-    :set $ISP3partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp3-hc-table]
-    :set $ISP3hp ($ISP3partialstate1+$ISP3partialstate2+$ISP3partialstate3)
+    :set $ISP3partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt] 
+    :set $ISP3partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
+    :set $ISP3partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
+    
+    :set $ISP3hp ($ISP3partialstate1 + $ISP3partialstate2 + $ISP3partialstate3)
+
+    # Debug info
+    :if ($DebugIsOn) do={
+        :local ISP3hpVarType [:typeof $ISP3hp;]
+        :log warning ""
+        :log warning "$scriptname:  ISP3 healhpoint is $ISP3hp"
+        :log warning "ISP3hp vartype is $ISP3hpVarType"
+        :log warning ""
+    }
 
     } else={
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "row-wht_isp-checker:  There is no ISP3 configured. Skipping and setting the ISP2hp to 0."
+                :log warning "$scriptname:  There is no ISP3 configured. Skipping and setting the ISP3hp to 0."
                 :log warning ""
             }
             :set $ISP3hp 0
     }
+
+    :if ($DebugIsOn) do={
+    :log warning ""
+    :log warning "$scriptname: Reached end of the script..."
+    :log warning "$scriptname: Looks like all good :)"
+    :log warning ""
+
+        # Fixing the script running time in debug mode
+        :if ($DebugIsOn) do={
+            :global ScriptRunStartTimeStamp
+            :global ScriptRunFinishTimeStamp [/system clock get time]
+            :global ScriptRunTime 
+            :set $ScriptRunTime ($ScriptRunFinishTimeStamp - $ScriptRunStartTimeStamp)      
+
+                    :log warning ""
+                    :log warning "$scriptname:  ScriptRunStartTimeStamp is $ScriptRunStartTimeStamp"
+                    :log warning "$scriptname:  ScriptRunFinishTimeStamp is $ScriptRunFinishTimeStamp"
+                    :log warning "$scriptname:  ScriptRunTime is $ScriptRunTime"
+                    :log warning ""
+        }
 }
+} else={
+
+    :if ($DebugIsOn) do={
+    :log warning ""
+    :log warning "$scriptname: Duplication handler hit."
+    :log warning "$scriptname: is still running, will not run another one"
+    :log warning ""
+}
+}
+

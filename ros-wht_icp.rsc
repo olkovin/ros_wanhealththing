@@ -12,12 +12,19 @@
 # For the LTE type, there must be LTE interface with comment ISP1 or ISP2
 #
 # Global vars 
-:global cliISP2present
-:global cliISP1type
-:global cliISP2type
-:global cliISP1state
-:global cliISP2state
-:global cliCurrentISP
+:global ISP1present
+:global ISP2present
+:global ISP3present
+:global ISP1type
+:global ISP2type
+:global ISP3type
+:global ISP1hp
+:global ISP2hp
+:global ISP3hp
+:global pISP1hp
+:global pISP2hp
+:global pISP3hp
+:global CurrentISP
 :global DebugIsOn
 
 ##### DUPLICATION HANDLER#####
