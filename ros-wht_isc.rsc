@@ -208,9 +208,11 @@
     :local ISP1partialstate3
 
     # Checking the healthchecks and setting the ISPstate
-    :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt] 
+    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##
+    :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
     :set $ISP1partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
     :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
+    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##
 
     :set $ISP1hp ($ISP1partialstate1 + $ISP1partialstate2 + $ISP1partialstate3)
 
