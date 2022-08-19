@@ -29,9 +29,9 @@
         :do {/ip dhcp-client set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
         :do {/ip dhcp-client set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
 
-        :do {/ip route set comment="ISP1_DGW_RT" [find where comment~"ISP1_DGW_RT" && comment~"ros-wht"]} on-error={}
-        :do {/ip route set comment="ISP2_DGW_RT" [find where comment~"ISP2_DGW_RT" && comment~"ros-wht"]} on-error={}
-        :do {/ip route set comment="ISP3_DGW_RT" [find where comment~"ISP3_DGW_RT" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP1_DGW_RT" distance=5 [find where comment~"ISP1_DGW_RT" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP2_DGW_RT" distance=6 [find where comment~"ISP2_DGW_RT" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP3_DGW_RT" distance=7 [find where comment~"ISP3_DGW_RT" && comment~"ros-wht"]} on-error={}
 
         :delay 5
     } on-error={
@@ -143,6 +143,11 @@
 # Firstly, temporary disable all deamons, before full init
 /system scheduler set disabled=yes [find where comment~"deamon" && !(comment~"init")]
 
+# Then, add init_deamon, to be sure that everythin will be started at boot
+:local ROSwhtINITdeamonPresent [/system scheduler print as-value count-only where comment~"ros-wht" && comment~"init" && comment~"deamon"]
+:if ($ROSwhtINITdeamonPresent != 1) do={
+    /system scheduler add name="$scriptname_deamon" comment="$scriptname | init deamon | run once at boot" start-time=startup on-event=":delay 5 \nros-wht_init"
+}
 ###### ISP TYPES, PRESENSE AND DHCP/STATIC TUNNINGS ######
 
 # Determining ISP1 type
