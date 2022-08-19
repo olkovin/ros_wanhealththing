@@ -146,7 +146,7 @@
 # Then, add init_deamon, to be sure that everythin will be started at boot
 :local ROSwhtINITdeamonPresent [/system scheduler print as-value count-only where comment~"ros-wht" && comment~"init" && comment~"deamon"]
 :if ($ROSwhtINITdeamonPresent != 1) do={
-    /system scheduler add name="$scriptname_deamon" comment="$scriptname | init deamon | run once at boot" start-time=startup on-event=":delay 5 \nros-wht_init"
+    /system scheduler add name="$scriptname_deamon" comment="$scriptname | init deamon | run once at boot" start-time=startup on-event=":delay 5\r\\nros-wht_init"
 }
 ###### ISP TYPES, PRESENSE AND DHCP/STATIC TUNNINGS ######
 
