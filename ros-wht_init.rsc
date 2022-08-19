@@ -56,37 +56,10 @@
 :global ISP1present
 :global ISP2present
 :global ISP3present
+:global ISP1type
+:global ISP2type
+:global ISP3type
 :global ISPsCounter
-
-:if ($ISP1present) do={
-    :global ISP1type
-    } else={
-        :if ($DebugIsOn) do={
-            :log warning ""
-            :log warning "$scriptname: ISP1 is not present."
-            :log warning "$scriptname: So, didn't initialize related vars."
-            }
-            }
-
-:if ($ISP2present) do={
-    :global ISP2type
-    } else={
-        :if ($DebugIsOn) do={
-            :log warning ""
-            :log warning "$scriptname: ISP2 is not present."
-            :log warning "$scriptname: So, didn't initialize related vars."
-            }
-            }
-
-:if ($ISP3present) do={
-    :global ISP3type
-    } else={
-        :if ($DebugIsOn) do={
-            :log warning ""
-            :log warning "$scriptname: ISP3 is not present."
-            :log warning "$scriptname: So, didn't initialize related vars."
-            }
-            }
 
 # Local vars
 :local scriptname "ros-wht_init"
