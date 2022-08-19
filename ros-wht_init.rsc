@@ -22,16 +22,17 @@
         /system scheduler remove [find where comment~"ros-wht"]
         /ip route remove [find where comment~"ros-wht" && comment~"HC_RT"]
         /system script environment remove [find where name!="DebugIsOn"]
+        /system script job remove [find where script~"ros-wht_isc"]
         :delay 2
         
         :do {/ip dhcp-client set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
         :do {/ip dhcp-client set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
         :do {/ip dhcp-client set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
 
-        :do {/ip route set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
-        :do {/ip route set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
-        :do {/ip route set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
-        
+        :do {/ip route set comment="ISP1_DGW_RT" [find where comment~"ISP1_DGW_RT" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP2_DGW_RT" [find where comment~"ISP2_DGW_RT" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP3_DGW_RT" [find where comment~"ISP3_DGW_RT" && comment~"ros-wht"]} on-error={}
+
         :delay 5
     } on-error={
 
