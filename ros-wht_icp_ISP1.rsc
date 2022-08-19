@@ -13,8 +13,6 @@
 #
 # Global vars 
 :global ISP1present
-:global ISP2present
-:global ISP3present
 :global ISPhpGood
 :global CurrentISP
 :global DebugIsOn
