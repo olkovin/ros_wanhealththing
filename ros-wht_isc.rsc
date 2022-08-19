@@ -194,7 +194,7 @@
     
     # Initializing global var for ISP1 healhpoints
     :global ISP1hpLatest
-    :global ISP1hpOld
+    :global ISP1hpPrevious
 
     # Debug info 
     :if ($DebugIsOn) do={
@@ -215,7 +215,7 @@
     :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
     ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##
 
-    :set $ISP1hpOld ($ISP1hpLatest)
+    :set $ISP1hpPrevious ($ISP1hpLatest)
     :set $ISP1hpLatest ($ISP1partialstate1 + $ISP1partialstate2 + $ISP1partialstate3)
 
     :if ($DebugIsOn) do={
@@ -241,7 +241,7 @@
 
     # Initializing global var for ISP2 healhpoints
     :global ISP2hpLatest
-    :global ISP2hpOld
+    :global ISP2hpPrevious
 
     # Debug info 
     :if ($DebugIsOn) do={
@@ -260,7 +260,7 @@
     :set $ISP2partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
     :set $ISP2partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
     
-    :set $ISP2hpOld ($ISP2hpLatest)
+    :set $ISP2hpPrevious ($ISP2hpLatest)
     :set $ISP2hpLatest ($ISP2partialstate1 + $ISP2partialstate2 + $ISP2partialstate3)
 
     :if ($DebugIsOn) do={
@@ -286,7 +286,7 @@
 
     # Initializing global var for ISP3 healhpoints
     :global ISP3hpLatest
-    :global ISP3hpOld
+    :global ISP3hpPrevious
     
     # Debug info 
     :if ($DebugIsOn) do={
@@ -305,7 +305,7 @@
     :set $ISP3partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
     :set $ISP3partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
     
-    :set $ISP3hpOld ($ISP3hpLatest)
+    :set $ISP3hpPrevious ($ISP3hpLatest)
     :set $ISP3hpLatest ($ISP3partialstate1 + $ISP3partialstate2 + $ISP3partialstate3)
 
     # Debug info
