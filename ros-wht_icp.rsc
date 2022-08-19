@@ -6,7 +6,8 @@
 # ros-wht_icp
 
 
-#
+# regex :)
+# [^       |    ]
 # For the STATIC ISP type, there must be IP->ADDRESS and default route with comment ISP1 or ISP2
 # For the DHCP (DYNAMIC) type, there must be IP->DHCP-CLIENT with comment ISP1 or ISP2
 # For the LTE type, there must be LTE interface with comment ISP1 or ISP2
