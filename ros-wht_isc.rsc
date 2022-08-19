@@ -347,7 +347,7 @@
     # Incorrect scheduler interval fix
 
 :local currentISCinterval
-:local correctISCinterval ($rosWHTScriptRunTime + 00:00:02)
+:local correctISCinterval ($rosWHTScriptRunTime + 00:00:05)
 
 
         # Displaying debug info, if DebuIsOn True
