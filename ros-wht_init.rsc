@@ -14,7 +14,10 @@
 # e.g. ISP1
 
 # Debug togler
-:global DebugIsOn
+:global DebugIsOn true
+
+# Delay in case of init on boot
+:delay 5
 
 # Firstly clear all old things from same script if debugging is ongoing
 :if ($DebugIsOn) do={
@@ -25,9 +28,9 @@
         /system script job remove [find where script~"ros-wht_isc"]
         :delay 2
         
-        :do {/ip dhcp-client set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
-        :do {/ip dhcp-client set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
-        :do {/ip dhcp-client set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
+        :do {/ip dhcp-client set comment="ISP1" default-route-distance=5 [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
+        :do {/ip dhcp-client set comment="ISP2" default-route-distance=6 [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
+        :do {/ip dhcp-client set comment="ISP3" default-route-distance=7 [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
 
         :do {/ip route set comment="ISP1_DGW_RT" distance=5 [find where comment~"ISP1_DGW_RT" && comment~"ros-wht"]} on-error={}
         :do {/ip route set comment="ISP2_DGW_RT" distance=6 [find where comment~"ISP2_DGW_RT" && comment~"ros-wht"]} on-error={}
@@ -119,7 +122,7 @@
 # Then, add init_deamon, to be sure that everythin will be started at boot
 :local ROSwhtINITdeamonPresent [/system scheduler print as-value count-only where comment~"ros-wht" && comment~"init" && comment~"deamon"]
 :if ($ROSwhtINITdeamonPresent != 1) do={
-    /system scheduler add name="$scriptname_deamon" comment="$scriptname | init deamon | run once at boot" start-time=startup on-event=":delay 5\r\\nros-wht_init"
+    /system scheduler add name="$scriptname_deamon" comment="$scriptname | init deamon | run once at boot" start-time=startup on-event="ros-wht_init"
 }
 ###### ISP TYPES, PRESENSE AND DHCP/STATIC TUNNINGS ######
 
