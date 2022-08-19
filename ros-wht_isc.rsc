@@ -32,11 +32,26 @@
 # Check if checker is already running now, dont do anything.
 :if ([/system script job print as-value count-only where script="ros-wht_isc"] <= 1) do={
 
+    # Fixining the script owner
+    :local currentScriptOwner [/system script get value-name=owner [find where name~"$scriptname"]]
+    :local correctOwner "ros-wht"
+
+    :if ($currentScriptOwner != $correctOwner) do={
+        /system script set owner=$correctOwner [find where name~"$scriptname"]
+        
+        :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Script owner is not ros-wht"
+        :log warning "$scriptname:  Changing..."
+        :log warning ""
+    }
+    }
+
     # Fixing the script running time in debug mode
         :if ($DebugIsOn) do={
-            :global ScriptRunStartTimeStamp [/system clock get time]
+            :global rosWHTScriptRunStartUptimeStamp [/system resource get value-name=uptime]
                     :log warning ""
-                    :log warning "$scriptname:  ScriptRunStartTimeStamp is $ScriptRunStartTimeStamp"
+                    :log warning "$scriptname:  rosWHTScriptRunStartUptimeStamp is $rosWHTScriptRunStartUptimeStamp"
                     :log warning ""
         }
 
@@ -70,6 +85,22 @@
         :log warning ""
         :log warning "$scriptname:  Used default pingscount = $pingscount"
         :log warning "$scriptname: pingscount is $pingscount"
+        :log warning ""
+    }
+}
+
+# Calculating max health per ISP
+:global ISPhpGood
+:local ISPhpGoodCalculated ($pingscount * 3)
+:if ($ISPhpGood!= $ISPhpGoodCalculated) do={
+    :set $ISPhpGood ($ISPhpGoodCalculated)
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname: ISPhpGood is $ISPhpGood"
+        :log warning "$scriptname: ISPhpGoodCalculated is $ISPhpGoodCalculated"
+        :log warning "$scriptname: Aligned ISPhpGood"
         :log warning ""
     }
 }
@@ -120,7 +151,7 @@
 
 :if ($typeofpingscount != "num") do={
         /system script environment remove [find where name=pingscount]
-        :global pingscount 4
+        :global pingscount 2
         :local typeofpingscount [:typeof $pingscount]
         :if ($DebugIsOn) do={
         :log warning ""
@@ -155,83 +186,6 @@
         :log warning "$scriptname: typeofpingsinterval is $typeofpingsinterval"
         :log warning ""
         }
-}
-
-# Incorrect scheduler interval fix
-:local ISPcount
-:if ($ISP1present) do={
-    :set $ISPcount ($ISPcount + 1)
-}
-:if ($ISP2present) do={
-    :set $ISPcount ($ISPcount + 1)
-}
-:if ($ISP3present) do={
-    :set $ISPcount ($ISPcount + 1)
-}
-
-:local currentISCinterval
-:local correctISCinterval ($ISPcount * 3 * $pingscount * $pingsinterval)
-
-
-        # Displaying debug info, if DebuIsOn True
-    :if ($DebugIsOn) do={
-        :log warning ""
-        :log warning "$scriptname: intervaling debug point 1 pass :)"
-        :log warning "$scriptname: ISPcount is $ISPcount"
-        :log warning "$scriptname: correctISCinterval is $correctISCinterval"
-        :log warning ""
-    }
-
-:do {
-    :set $currentISCinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_isc | deamon"]]
-    } on-error={
-        # Displaying debug info, if DebuIsOn True
-        :if ($DebugIsOn) do={
-            :log warning ""
-            :log warning "$scriptname:  Error when getting $scriptname scheduler interval."
-            :log warning "$scriptname: Perhaps, there is no configured scheduler."
-            :log warning ""
-            }
-        :do {
-            # Displaying debug info, if DebuIsOn True
-            :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: Adding the $scriptname scheduler..."
-                :log warning "$scriptname: Correct ISC interval is $correctISCinterval"
-                :log warning ""
-            }
-            /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$correctISCinterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
-                :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: The $scriptname scheduler succesfully added!"
-                :log warning ""
-            }
-        } on-error={
-                :if ($DebugIsOn) do={
-                :log error ""
-                :log error "$scriptname: Error when trying to add missing $scriptname scheduler."
-                :log error "$scriptname: Unexcpected Error. Code MSSA_ERROR"
-                :log error ""
-            }
-        }
-    }
-
-:if ($currentISCinterval != $correctISCinterval) do={
-                
-                :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: The $scriptname scheduler interval was setted incorrect."
-                :log warning "$scriptname: ISC interval was set to $correctISCinterval"
-                :log warning ""
-                }
-    /system scheduler set interval=$correctISCinterval [find where name~"$scriptname-deamon"]
-} else={
-                :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: The $scriptname scheduler interval is correct."
-                :log warning "$scriptname: Nothing need to be done with it"
-                :log warning ""
-                }
 }
 
 ### Passing state of the providers getted from netwatch to global vars
@@ -371,19 +325,92 @@
     :log warning "$scriptname: Looks like all good :)"
     :log warning ""
 
-        # Fixing the script running time in debug mode
-        :if ($DebugIsOn) do={
-            :global ScriptRunStartTimeStamp
-            :global ScriptRunFinishTimeStamp [/system clock get time]
-            :global ScriptRunTime 
-            :set $ScriptRunTime ($ScriptRunFinishTimeStamp - $ScriptRunStartTimeStamp)      
 
+    # Alighing scheduler interval to the script runnign time
+
+            :global rosWHTScriptRunStartUptimeStamp
+            :global rosWHTScriptRunFinishUptimeStamp [/system resource get value-name=uptime]
+            :global rosWHTScriptRunTime 
+            :set $rosWHTScriptRunTime ($rosWHTScriptRunFinishUptimeStamp - $rosWHTScriptRunStartUptimeStamp)   
+
+
+
+    # Showing the script running time in debug mode
+        :if ($DebugIsOn) do={
                     :log warning ""
-                    :log warning "$scriptname:  ScriptRunStartTimeStamp is $ScriptRunStartTimeStamp"
-                    :log warning "$scriptname:  ScriptRunFinishTimeStamp is $ScriptRunFinishTimeStamp"
-                    :log warning "$scriptname:  ScriptRunTime is $ScriptRunTime"
+                    :log warning "$scriptname:  rosWHTScriptRunStartUptimeStamp is $rosWHTScriptRunStartUptimeStamp"
+                    :log warning "$scriptname:  rosWHTScriptRunFinishUptimeStamp is $rosWHTScriptRunFinishUptimeStamp"
+                    :log warning "$scriptname:  rosWHTScriptRunTime is $rosWHTScriptRunTime"
                     :log warning ""
         }
+
+    # Incorrect scheduler interval fix
+
+:local currentISCinterval
+:local correctISCinterval ($rosWHTScriptRunTime + 00:00:02)
+
+
+        # Displaying debug info, if DebuIsOn True
+    :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname: intervaling debug point 1 pass :)"
+        :log warning "$scriptname: ISPcount is $ISPcount"
+        :log warning "$scriptname: correctISCinterval is $correctISCinterval"
+        :log warning ""
+    }
+
+:do {
+    :set $currentISCinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_isc | deamon"]]
+    } on-error={
+        # Displaying debug info, if DebuIsOn True
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname:  Error when getting $scriptname scheduler interval."
+            :log warning "$scriptname: Perhaps, there is no configured scheduler."
+            :log warning ""
+            }
+        :do {
+            # Displaying debug info, if DebuIsOn True
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: Adding the $scriptname scheduler..."
+                :log warning "$scriptname: Correct ISC interval is $correctISCinterval"
+                :log warning ""
+            }
+            /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$correctISCinterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler succesfully added!"
+                :log warning ""
+            }
+        } on-error={
+                :if ($DebugIsOn) do={
+                :log error ""
+                :log error "$scriptname: Error when trying to add missing $scriptname scheduler."
+                :log error "$scriptname: Unexcpected Error. Code MSSA_ERROR"
+                :log error ""
+            }
+        }
+    }
+
+:if ($currentISCinterval != $correctISCinterval) do={
+                
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler interval was setted incorrect."
+                :log warning "$scriptname: ISC interval was set to $correctISCinterval"
+                :log warning ""
+                }
+    /system scheduler set interval=$correctISCinterval [find where name~"$scriptname-deamon"]
+} else={
+                :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: The $scriptname scheduler interval is correct."
+                :log warning "$scriptname: Nothing need to be done with it"
+                :log warning ""
+                }
+}
+
 }
 } else={
 
