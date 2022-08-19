@@ -17,11 +17,26 @@
 :global DebugIsOn
 
 # Local vars
-:local scriptname "ros-wht_icp_ISP1"
+:local scriptname "ros-wht_icp"
 
 
 ##### DUPLICATION HANDLER#####
 :if ([/system script job print as-value count-only where script="scriptname"] <= 1) do={
+
+            # Fixining the script owner
+        :local currentScriptOwner [/system script get value-name=owner [find where name~"$scriptname"]]
+        :local correctOwner "ros-wht"
+
+        :if ($currentScriptOwner != $correctOwner) do={
+            /system script set owner=$correctOwner [find where name~"$scriptname"]
+            
+            :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname:  Script owner is not ros-wht"
+            :log warning "$scriptname:  Changing..."
+            :log warning ""
+        }
+        }
 
     ###
     ### ISP1 actions handler
