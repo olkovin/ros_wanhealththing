@@ -50,9 +50,10 @@
         }
         }
 
-        # Fixing the script running time in debug mode
+        # Fixing the script running time
+            :global rosWHTScriptRunStartUptimeStamp [/system resource get value-name=uptime]
+            
             :if ($DebugIsOn) do={
-                :global rosWHTScriptRunStartUptimeStamp [/system resource get value-name=uptime]
                         :log warning ""
                         :log warning "$scriptname:  rosWHTScriptRunStartUptimeStamp is $rosWHTScriptRunStartUptimeStamp"
                         :log warning ""
