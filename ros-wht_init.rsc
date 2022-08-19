@@ -58,6 +58,36 @@
 :global ISP3present
 :global ISPsCounter
 
+:if ($ISP1present) do={
+    :global ISP1type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP1 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
+:if ($ISP2present) do={
+    :global ISP2type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP2 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
+:if ($ISP3present) do={
+    :global ISP3type
+    } else={
+        :if ($DebugIsOn) do={
+            :log warning ""
+            :log warning "$scriptname: ISP3 is not present."
+            :log warning "$scriptname: So, didn't initialize related vars."
+            }
+            }
+
 # Local vars
 :local scriptname "ros-wht_init"
 
@@ -125,7 +155,7 @@
         #ISP1 type is Static
         :do {
             :set $ISP1present true
-            :global ISP1type "STATIC"
+            :set $ISP1type "STATIC"
             } on-error={
                 :log error "$scriptname: Error setting ISP1 type and presentage state."
                 :log error "$scriptname: Error code: ESISP1PS_STATIC"
@@ -135,7 +165,7 @@
         #ISP1 type is DHCP
         :do {
             :set $ISP1present true
-            :global ISP1type "DHCP"
+            :set $ISP1type "DHCP"
             } on-error={
                 :log error "$scriptname: Error setting ISP1 type and presentage state."
                 :log error "$scriptname: Error code: ESISP1PS_DCHP"
@@ -150,7 +180,7 @@
         #ISP2 type is Static
         :do {
             :set $ISP2present true
-            :global ISP2type "STATIC"
+            :set $ISP2type "STATIC"
             } on-error={
                 :log error "$scriptname: Error setting ISP2 type and presentage state."
                 :log error "$scriptname: Error code: ESISP2PS_STATIC"
@@ -160,7 +190,7 @@
         #ISP2 type is DHCP
         :do {
             :set $ISP2present true
-            :global ISP2type "DHCP"
+            :set $ISP2type "DHCP"
             } on-error={
                 :log error "$scriptname: Error setting ISP2 type and presentage state."
                 :log error "$scriptname: Error code: ESISP2PS_DCHP"
@@ -175,7 +205,7 @@
         #ISP3 type is Static
         :do {
             :set $ISP3present true
-            :global ISP3type "STATIC"
+            :set $ISP3type "STATIC"
             } on-error={
                 :log error "$scriptname: Error setting ISP3 type and presentage state."
                 :log error "$scriptname: Error code: ESISP3PS_STATIC"
@@ -185,7 +215,7 @@
         #ISP3 type is DHCP
         :do {
             :set $ISP3present true
-            :global ISP3type "DHCP"
+            :set $ISP3type "DHCP"
             } on-error={
                 :log error "$scriptname: Error setting ISP3 type and presentage state."
                 :log error "$scriptname: Error code: ESISP3PS_DCHP"
