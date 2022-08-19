@@ -193,7 +193,8 @@
     :if ($ISP1present) do={
     
     # Initializing global var for ISP1 healhpoints
-    :global ISP1hp
+    :global ISP1hpLatest
+    :global ISP1hpOld
 
     # Debug info 
     :if ($DebugIsOn) do={
@@ -214,13 +215,14 @@
     :set $ISP1partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
     ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##
 
-    :set $ISP1hp ($ISP1partialstate1 + $ISP1partialstate2 + $ISP1partialstate3)
+    :set $ISP1hpOld ($ISP1hpLatest)
+    :set $ISP1hpLatest ($ISP1partialstate1 + $ISP1partialstate2 + $ISP1partialstate3)
 
     :if ($DebugIsOn) do={
-        :local ISP1hpVarType [:typeof $ISP1hp;]
+        :local ISP1hpLatestVarType [:typeof $ISP1hpLatest;]
         :log warning ""
-        :log warning "$scriptname:  ISP1 healhpoint is $ISP1hp"
-        :log warning "ISP1hp vartype is $ISP1hpVarType"
+        :log warning "$scriptname:  ISP1 healhpoint is $ISP1hpLatest"
+        :log warning "ISP1hpLatest vartype is $ISP1hpLatestVarType"
         :log warning ""
     }
 
@@ -228,17 +230,18 @@
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "$scriptname:  There is no ISP1 configured. Skipping and setting the ISP1hp to 0."
+                :log warning "$scriptname:  There is no ISP1 configured. Skipping and setting the ISP1hpLatest to 0."
                 :log warning ""
             }
-            :set $ISP1hp 0
+            :set $ISP1hpLatest 0
     }
 
     # Passing state of the ISP2
     :if ($ISP2present) do={
 
     # Initializing global var for ISP2 healhpoints
-    :global ISP2hp
+    :global ISP2hpLatest
+    :global ISP2hpOld
 
     # Debug info 
     :if ($DebugIsOn) do={
@@ -257,13 +260,14 @@
     :set $ISP2partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
     :set $ISP2partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp2_hc_rt]
     
-    :set $ISP2hp ($ISP2partialstate1 + $ISP2partialstate2 + $ISP2partialstate3)
+    :set $ISP2hpOld ($ISP2hpLatest)
+    :set $ISP2hpLatest ($ISP2partialstate1 + $ISP2partialstate2 + $ISP2partialstate3)
 
     :if ($DebugIsOn) do={
-        :local ISP2hpVarType [:typeof $ISP2hp;]
+        :local ISP2hpLatestVarType [:typeof $ISP2hpLatest;]
         :log warning ""
-        :log warning "$scriptname:  ISP2 healhpoint is $ISP2hp"
-        :log warning "ISP2hp vartype is $ISP2hpVarType"
+        :log warning "$scriptname:  ISP2 healhpoint is $ISP2hpLatest"
+        :log warning "ISP2hpLatest vartype is $ISP2hpLatestVarType"
         :log warning ""
     }
 
@@ -271,17 +275,18 @@
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "$scriptname:  There is no ISP2 configured. Skipping and setting the ISP2hp to 0."
+                :log warning "$scriptname:  There is no ISP2 configured. Skipping and setting the ISP2hpLatest to 0."
                 :log warning ""
             }
-            :set $ISP2hp 0
+            :set $ISP2hpLatest 0
     }
 
     # Passing state of the ISP3
     :if ($ISP3present) do={
 
     # Initializing global var for ISP3 healhpoints
-    :global ISP3hp
+    :global ISP3hpLatest
+    :global ISP3hpOld
     
     # Debug info 
     :if ($DebugIsOn) do={
@@ -300,14 +305,15 @@
     :set $ISP3partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
     :set $ISP3partialstate3 [/ping $HCaddr3 interval=$pingsinterval count=$pingscount routing-table=isp3_hc_rt]
     
-    :set $ISP3hp ($ISP3partialstate1 + $ISP3partialstate2 + $ISP3partialstate3)
+    :set $ISP3hpOld ($ISP3hpLatest)
+    :set $ISP3hpLatest ($ISP3partialstate1 + $ISP3partialstate2 + $ISP3partialstate3)
 
     # Debug info
     :if ($DebugIsOn) do={
-        :local ISP3hpVarType [:typeof $ISP3hp;]
+        :local ISP3hpLatestVarType [:typeof $ISP3hpLatest;]
         :log warning ""
-        :log warning "$scriptname:  ISP3 healhpoint is $ISP3hp"
-        :log warning "ISP3hp vartype is $ISP3hpVarType"
+        :log warning "$scriptname:  ISP3 healhpoint is $ISP3hpLatest"
+        :log warning "ISP3hpLatest vartype is $ISP3hpLatestVarType"
         :log warning ""
     }
 
@@ -315,10 +321,10 @@
             # Displaying debug info, if DebuIsOn True
             :if ($DebugIsOn) do={
                 :log warning ""
-                :log warning "$scriptname:  There is no ISP3 configured. Skipping and setting the ISP3hp to 0."
+                :log warning "$scriptname:  There is no ISP3 configured. Skipping and setting the ISP3hpLatest to 0."
                 :log warning ""
             }
-            :set $ISP3hp 0
+            :set $ISP3hpLatest 0
     }
 
     :if ($DebugIsOn) do={
