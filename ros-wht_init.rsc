@@ -145,6 +145,7 @@
             }
     } else={
         :set $ISP1present false
+        /system script environment remove [find where name~"ISP1"]
     }
 }
 
@@ -170,6 +171,8 @@
             }
     } else={
         :set $ISP2present false
+        /system script environment remove [find where name~"ISP2"]
+
     }
 }
 
@@ -195,6 +198,7 @@
             }
     } else={
         :set $ISP3present false
+        /system script environment remove [find where name~"ISP3"]
     }
 }
 
