@@ -13,6 +13,25 @@
 # Also, ISP(X) must be set on the corresponding interfaces and DHCP-clients
 # e.g. ISP1
 
+# Debug togler
+:global DebugIsOn
+
+# Firstly clear all old things from same script if debugging is ongoing
+:if ($DebugIsOn) do={
+    :do {
+        /system scheduler remove [find where comment~"ros-wht"]
+        /ip route remove [find where comment~"ros-wht" && comment~"HC_RT"]
+        /system script environment remove [find where name!="DebugIsOn"]
+        :delay 2
+        
+        :do {/ip dhcp-client set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
+        :do {/ip dhcp-client set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
+        :do {/ip dhcp-client set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
+        :delay 5
+    } on-error={
+
+    }
+}
 
 # You can change it to whatever host you want to use as healthcheck
 # If there is default, 1.1.1.1, 9.9.9.9 and 8.8.8.8 will be used in healthcheck 
@@ -31,6 +50,7 @@
 :global ISP1present
 :global ISP2present
 :global ISP3present
+:global ISPsCounter
 
 :if ($ISP1present) do={
     :global ISP1type
@@ -62,10 +82,23 @@
             }
             }
 
-:global DebugIsOn
-
 # Local vars
 :local scriptname "ros-wht_init"
+
+# Fixining the script owner
+:local currentScriptOwner [/system script get value-name=owner [find where name~"$scriptname"]]
+:local correctOwner "ros-wht"
+
+    :if ($currentScriptOwner != $correctOwner) do={
+        /system script set owner=$correctOwner [find where name~"$scriptname"]
+        :delay 1
+        :if ($DebugIsOn) do={
+        :log warning ""
+        :log warning "$scriptname:  Script owner is not ros-wht"
+        :log warning "$scriptname:  Changing..."
+        :log warning ""
+    }
+    }
 
 
 # Changing type of pingscount and pingsinterval
@@ -126,6 +159,8 @@
                 :log error "$scriptname: Error setting ISP1 type and presentage state."
                 :log error "$scriptname: Error code: ESISP1PS_DCHP"
             }
+    } else={
+        :set $ISP1present false
     }
 }
 
@@ -149,6 +184,8 @@
                 :log error "$scriptname: Error setting ISP2 type and presentage state."
                 :log error "$scriptname: Error code: ESISP2PS_DCHP"
             }
+    } else={
+        :set $ISP2present false
     }
 }
 
@@ -172,6 +209,8 @@
                 :log error "$scriptname: Error setting ISP3 type and presentage state."
                 :log error "$scriptname: Error code: ESISP3PS_DCHP"
             }
+    } else={
+        :set $ISP3present false
     }
 }
 
@@ -185,6 +224,9 @@
 # Set and Deploy HealthCheck GW for ISP1 in case when ISP1 type is present
 #
 :if ($ISP1present) do={
+    # Adding + 1 to ISPsCounter
+    :set $ISPsCounter ($ISPsCounter + 1)
+
     # Getting current ISP1_HC_RT for comparison and if there is no HC_RT deploy one
     :do {
         :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC_RT"]]
@@ -202,7 +244,7 @@
 
                         # Deploy ISP1_HC_RT if needed.
             :if ($ISP1hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP1_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
+                /ip route add check-gateway=ping comment="ISP1_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
                 }
             }
 
@@ -211,6 +253,13 @@
         :if ($ISP1type = "STATIC") do={
                 # Getting current ISP1_DGW_RT for comparison
                 :local ISP1staticGW [/ip route get value-name=gateway [find where comment~"ISP1_DGW_RT"]]
+
+                # Alligning DGW route distance for ISP1 if needed
+                /ip route set distance=10 comment="ISP1_DGW_RT | Managed by ros-wht" [find where comment~"ISP1_DGW_RT" && distance!=10]
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname: ISP1_DGW_RT aligned."
+                    }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP1currentHCGW != $ISP1staticGW) do={
@@ -238,9 +287,9 @@
                 :global ISP1dhcpGW
                 # If there is no ISP1dhcpGW, initialize DHCP-script adding
                 :if ($ISP1dhcpGW = nothing) do={
-                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP1dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP1"]
-                    /ip dhcp-client set disabled=yes [find where comment="ISP1"]
-                    /ip dhcp-client set disabled=no [find where comment="ISP1"]
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP1dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=10 comment="ISP1 DHCP Client | Managed by ros-wht" [find where comment="ISP1"] 
+                    /ip dhcp-client set disabled=yes [find where comment~"ISP1"]
+                    /ip dhcp-client set disabled=no [find where comment~"ISP1"]
                     :delay 5
                 }
 
@@ -289,11 +338,15 @@
 # Set and Deploy HealthCheck GW for ISP2 in case when ISP2 type is present
 #
 :if ($ISP2present) do={
+    
+    # Adding + 1 to ISPsCounter
+    :set $ISPsCounter ($ISPsCounter + 1)
+    
     # Getting current ISP2_HC_RT for comparison and if there is no HC_RT deploy one
     :do {
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
         } on-error={
-            :set $ISP2currentHCGW "169.254.0.2"
+            :set $ISP2currentHCGW "169.254.0.1"
             :local ISP2hcNeedToBeDeployed true
 
             :if ($DebugIsOn) do={
@@ -306,7 +359,7 @@
 
                         # Deploy ISP2_HC_RT if needed.
             :if ($ISP2hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP2_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp2_hc_rt
+                /ip route add check-gateway=ping comment="ISP2_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp2_hc_rt
                 }
             }
 
@@ -315,6 +368,13 @@
         :if ($ISP2type = "STATIC") do={
                 # Getting current ISP2_DGW_RT for comparison
                 :local ISP2staticGW [/ip route get value-name=gateway [find where comment~"ISP2_DGW_RT"]]
+
+                # Alligning DGW route distance for ISP2 if needed
+                /ip route set distance=20 comment="ISP2_DGW_RT | Managed by ros-wht" [find where comment~"ISP2_DGW_RT" && distance!=20]
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname: ISP2_DGW_RT aligned."
+                    }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP2currentHCGW != $ISP2staticGW) do={
@@ -342,9 +402,9 @@
                 :global ISP2dhcpGW
                 # If there is no ISP2dhcpGW, initialize DHCP-script adding
                 :if ($ISP2dhcpGW = nothing) do={
-                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP2"]
-                    /ip dhcp-client set disabled=yes [find where comment="ISP2"]
-                    /ip dhcp-client set disabled=no [find where comment="ISP2"]
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=20 comment="ISP2 DHCP Client | Managed by ros-wht" [find where comment="ISP2"] 
+                    /ip dhcp-client set disabled=yes [find where comment~"ISP2"]
+                    /ip dhcp-client set disabled=no [find where comment~"ISP2"]
                     :delay 5
                 }
 
@@ -371,7 +431,7 @@
                                     } else={
                                         :log error ""
                                         :log error "$scriptname: Error ISP2 probably have unknown type!"
-                                        :log error "$scriptname: Error code GWIPFHC_ISP2_nonSTATIC_nonDHCP"
+                                        :log error "$scriptname: Error code GWIPFHC_isp2_nonSTATIC_nonDHCP"
                                         }
                                         }
 
@@ -393,11 +453,15 @@
 # Set and Deploy HealthCheck GW for ISP3 in case when ISP3 type is present
 #
 :if ($ISP3present) do={
+
+    # Adding + 1 to ISPsCounter
+    :set $ISPsCounter ($ISPsCounter + 1)
+
     # Getting current ISP3_HC_RT for comparison and if there is no HC_RT deploy one
     :do {
         :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
         } on-error={
-            :set $ISP3currentHCGW "169.254.0.3"
+            :set $ISP3currentHCGW "169.254.0.1"
             :local ISP3hcNeedToBeDeployed true
 
             :if ($DebugIsOn) do={
@@ -410,7 +474,7 @@
 
                         # Deploy ISP3_HC_RT if needed.
             :if ($ISP3hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP3_HC_RT | ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp3_hc_rt
+                /ip route add check-gateway=ping comment="ISP3_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp3_hc_rt
                 }
             }
 
@@ -419,6 +483,13 @@
         :if ($ISP3type = "STATIC") do={
                 # Getting current ISP3_DGW_RT for comparison
                 :local ISP3staticGW [/ip route get value-name=gateway [find where comment~"ISP3_DGW_RT"]]
+
+                # Alligning DGW route distance for ISP3 if needed
+                /ip route set distance=30 comment="ISP3_DGW_RT | Managed by ros-wht" [find where comment~"ISP3_DGW_RT" && distance!=30]
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname: ISP3_DGW_RT aligned."
+                    }
 
                 # Realising compare logic for STATIC.
                 :if ($ISP3currentHCGW != $ISP3staticGW) do={
@@ -446,9 +517,9 @@
                 :global ISP3dhcpGW
                 # If there is no ISP3dhcpGW, initialize DHCP-script adding
                 :if ($ISP3dhcpGW = nothing) do={
-                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" [find where comment="ISP3"]
-                    /ip dhcp-client set disabled=yes [find where comment="ISP3"]
-                    /ip dhcp-client set disabled=no [find where comment="ISP3"]
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=30 comment="ISP3 DHCP Client | Managed by ros-wht" [find where comment="ISP3"] 
+                    /ip dhcp-client set disabled=yes [find where comment~"ISP3"]
+                    /ip dhcp-client set disabled=no [find where comment~"ISP3"]
                     :delay 5
                 }
 
@@ -475,7 +546,7 @@
                                     } else={
                                         :log error ""
                                         :log error "$scriptname: Error ISP3 probably have unknown type!"
-                                        :log error "$scriptname: Error code GWIPFHC_ISP3_nonSTATIC_nonDHCP"
+                                        :log error "$scriptname: Error code GWIPFHC_isp3_nonSTATIC_nonDHCP"
                                         }
                                         }
 
@@ -492,17 +563,18 @@
         #
 
 
-
 ###### HEALTH CHECKS AND ROUTING TABLES ########
 
 
 :if (!$DebugIsOn) do={
 :delay 15
 # And finaly, back all of the our disabled deamons back
-
-/system scheduler set disabled=no [find where comment~"deamon" && comment~"init"]
+/system script run ros-wht_isc
 } else={
     :log warning ""
     :log warning "$scriptname: Reached end of the script..."
     :log warning "$scriptname: Looks like all good :)"
+    :log warning "$scriptname: Launching the next phase... ))"
+    :delay 1
+    /system script run ros-wht_isc
 }
