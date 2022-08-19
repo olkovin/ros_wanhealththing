@@ -27,6 +27,11 @@
         :do {/ip dhcp-client set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
         :do {/ip dhcp-client set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
         :do {/ip dhcp-client set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
+
+        :do {/ip route set comment="ISP1" [find where comment~"ISP1" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP2" [find where comment~"ISP2" && comment~"ros-wht"]} on-error={}
+        :do {/ip route set comment="ISP3" [find where comment~"ISP3" && comment~"ros-wht"]} on-error={}
+        
         :delay 5
     } on-error={
 
