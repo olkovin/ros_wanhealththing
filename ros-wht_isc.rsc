@@ -360,7 +360,7 @@
     }
 
 :do {
-    :set $currentISCinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_isc | deamon"]]
+    :set $currentISCinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_isc" && comment~"deamon"]]
     } on-error={
         # Displaying debug info, if DebuIsOn True
         :if ($DebugIsOn) do={
