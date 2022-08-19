@@ -34,7 +34,7 @@
 # Check if checker is already running now, dont do anything.
 :if ([/system script job print as-value count-only where script="ros-wht_isc"] <= 1) do={
     # Check if there is no Pause reqest from ICP
-    :if(!$roswhtICPdeamonPaused) do={
+    :if (!$roswhtICPdeamonPaused) do={
         # Fixining the script owner
         :local currentScriptOwner [/system script get value-name=owner [find where name~"$scriptname"]]
         :local correctOwner "ros-wht"
@@ -429,7 +429,8 @@
             :log warning "$scriptname: ICP requested pause for ISC."
             :log warning "$scriptname: Waiting..."
             :log warning ""
-}
+        }
+        }
 } else={
 
     :if ($DebugIsOn) do={
