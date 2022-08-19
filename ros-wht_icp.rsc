@@ -13,7 +13,7 @@
 :global ISPhpGood
 :global CurrentISP
 :global rosWHTrunningInterval
-:global roswhtICPdeamonPaused
+:global rosWHTiscDeamonPaused
 :global DebugIsOn
 
 # Local vars
@@ -49,7 +49,7 @@
         
         :if ($ISP1hpOld != $ISP1hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
-            :set $roswhtICPdeamonPaused true
+            :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
             :delay ($rosWHTrunningInterval - 5)
 
@@ -196,7 +196,7 @@
                                                                             }
                                                                             # Waiting and enabling ISC deamon back
                                                                             :delay 2
-                                                                            :set $roswhtICPdeamonPaused false
+                                                                            :set $rosWHTiscDeamonPaused false
                                                                             } else={
                                                                                 #ISP1 HP isn't changed
                                                                                     :if ($DebugIsOn) do={
@@ -223,7 +223,7 @@
         
         :if ($ISP2hpOld != $ISP2hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
-            :set $roswhtICPdeamonPaused true
+            :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
             :delay ($rosWHTrunningInterval - 5)
 
@@ -370,7 +370,7 @@
                                                                             }
                                                                             # Waiting and enabling ISC deamon back
                                                                             :delay 2
-                                                                            :set $roswhtICPdeamonPaused false
+                                                                            :set $rosWHTiscDeamonPaused false
                                                                             } else={
                                                                                 #ISP2 HP isn't changed
                                                                                     :if ($DebugIsOn) do={
@@ -397,7 +397,7 @@
         
         :if ($ISP3hpOld != $ISP3hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
-            :set $roswhtICPdeamonPaused true
+            :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
             :delay ($rosWHTrunningInterval - 5)
 
@@ -544,7 +544,7 @@
                                                                             }
                                                                             # Waiting and enabling ISC deamon back
                                                                             :delay 2
-                                                                            :set $roswhtICPdeamonPaused false
+                                                                            :set $rosWHTiscDeamonPaused false
                                                                             } else={
                                                                                 #ISP3 HP isn't changed
                                                                                     :if ($DebugIsOn) do={
