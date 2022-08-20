@@ -283,7 +283,7 @@
         :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC1_RT"]]
         } on-error={
             :set $ISP1currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP1_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1/32 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
+            /ip route add check-gateway=ping comment="ISP1_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
             }
     
     # Getting current ISP1_HC2_RT for comparison and if there is no HC_RT deploy one
@@ -291,7 +291,7 @@
         :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC2_RT"]]
         } on-error={
             :set $ISP1currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP1_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2/32 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
+            /ip route add check-gateway=ping comment="ISP1_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
             }
     
     # Getting current ISP1_HC3_RT for comparison and if there is no HC_RT deploy one
@@ -299,7 +299,7 @@
         :local ISP1currentHCGW [/ip route get value-name=gateway [find where comment~"ISP1_HC3_RT"]]
         } on-error={
             :set $ISP1currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP1_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3/32 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
+            /ip route add check-gateway=ping comment="ISP1_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3 gateway=$ISP1currentHCGW routing-mark=isp1_hc_rt
             }
 
 ### Section for getting and comparing HC route rules ###
@@ -432,7 +432,7 @@
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC1_RT"]]
         } on-error={
             :set $ISP2currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP2_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
+            /ip route add check-gateway=ping comment="ISP2_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
             }
     
     # Getting current ISP2_HC2_RT for comparison and if there is no HC_RT deploy one
@@ -440,7 +440,7 @@
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC2_RT"]]
         } on-error={
             :set $ISP2currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP2_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
+            /ip route add check-gateway=ping comment="ISP2_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
             }
     
     # Getting current ISP2_HC3_RT for comparison and if there is no HC_RT deploy one
@@ -448,7 +448,7 @@
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC3_RT"]]
         } on-error={
             :set $ISP2currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP2_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
+            /ip route add check-gateway=ping comment="ISP2_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
             }
 
 ### Section for getting and comparing HC route rules ###
@@ -581,7 +581,7 @@
         :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC1_RT"]]
         } on-error={
             :set $ISP3currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP3_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
+            /ip route add check-gateway=ping comment="ISP3_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
             }
     
     # Getting current ISP3_HC2_RT for comparison and if there is no HC_RT deploy one
@@ -589,7 +589,7 @@
         :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC2_RT"]]
         } on-error={
             :set $ISP3currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP3_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
+            /ip route add check-gateway=ping comment="ISP3_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
             }
     
     # Getting current ISP3_HC3_RT for comparison and if there is no HC_RT deploy one
@@ -597,7 +597,7 @@
         :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC3_RT"]]
         } on-error={
             :set $ISP3currentHCGW "169.254.0.1"
-            /ip route add check-gateway=ping comment="ISP3_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
+            /ip route add check-gateway=ping comment="ISP3_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
             }
 
 ### Section for getting and comparing HC route rules ###
