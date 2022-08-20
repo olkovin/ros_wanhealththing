@@ -12,7 +12,7 @@
 :global ISP3present
 :global ISPhpGood
 :global CurrentISP
-:global rosWHTrunningInterval
+:global rosWHTiscRunningInterval
 :global rosWHTiscDeamonPaused
 :global DebugIsOn
 
@@ -38,6 +38,72 @@
         }
         }
 
+        # Incorrect scheduler interval fix
+
+            :local currentICPinterval
+            :set $rosWHTicpRunningInterval ($rosWHTiscScriptRunTime / 2)
+
+                    # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname: intervaling debug point 1 pass :)"
+                    :log warning "$scriptname: ISPcount is $ISPcount"
+                    :log warning "$scriptname: rosWHTiscRunningInterval is $rosWHTiscRunningInterval"
+                    :log warning ""
+                }
+
+            :do {
+                :set $currentICPinterval [/system scheduler get value-name=interval [find where comment~"ros-wht_icp" && comment~"deamon"]]
+                } on-error={
+                    # Displaying debug info, if DebuIsOn True
+                    :if ($DebugIsOn) do={
+                        :log warning ""
+                        :log warning "$scriptname:  Error when getting $scriptname scheduler interval."
+                        :log warning "$scriptname: Perhaps, there is no configured scheduler."
+                        :log warning ""
+                        }
+                    :do {
+                        # Displaying debug info, if DebuIsOn True
+                        :if ($DebugIsOn) do={
+                            :log warning ""
+                            :log warning "$scriptname: Adding the $scriptname scheduler..."
+                            :log warning "$scriptname: Correct ISC interval is $rosWHTiscRunningInterval"
+                            :log warning ""
+                        }
+                        /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$rosWHTicpRunningInterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
+                            :if ($DebugIsOn) do={
+                            :log warning ""
+                            :log warning "$scriptname: The $scriptname scheduler succesfully added!"
+                            :log warning ""
+                        }
+                    } on-error={
+                            :if ($DebugIsOn) do={
+                            :log error ""
+                            :log error "$scriptname: Error when trying to add missing $scriptname scheduler."
+                            :log error "$scriptname: Unexcpected Error. Code MSSA_ERROR"
+                            :log error ""
+                        }
+                    }
+                }
+
+                            :if ($currentICPinterval != $rosWHTicpRunningInterval) do={
+                            
+                            :if ($DebugIsOn) do={
+                            :log warning ""
+                            :log warning "$scriptname: The $scriptname scheduler interval was setted incorrect."
+                            :log warning "$scriptname: ISC interval was set to $rosWHTiscRunningInterval"
+                            :log warning ""
+                            }
+                /system scheduler set interval=$rosWHTicpRunningInterval [find where name~"$scriptname-deamon"]
+            } else={
+                            :if ($DebugIsOn) do={
+                            :log warning ""
+                            :log warning "$scriptname: The $scriptname scheduler interval is correct."
+                            :log warning "$scriptname: Nothing need to be done with it"
+                            :log warning ""
+                            }
+            }
+
     ###
     ### ISP1 actions handler
     ### 
@@ -51,10 +117,10 @@
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
-            :if (($rosWHTrunningInterval - 5) <= 0) do={
+            :if (($rosWHTiscRunningInterval - 5) <= 0) do={
                 :delay 1
             } else={
-            :delay ($rosWHTrunningInterval - 5)
+            :delay ($rosWHTiscRunningInterval - 5)
             }
 
             # Debug info
@@ -229,7 +295,11 @@
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
-            :delay ($rosWHTrunningInterval - 5)
+            :if (($rosWHTiscRunningInterval - 5) <= 0) do={
+                :delay 1
+            } else={
+            :delay ($rosWHTiscRunningInterval - 5)
+            }
 
             # Debug info
             :if ($DebugIsOn) do={
@@ -403,8 +473,11 @@
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
-            :delay ($rosWHTrunningInterval - 5)
-
+            :if (($rosWHTiscRunningInterval - 5) <= 0) do={
+                :delay 1
+            } else={
+            :delay ($rosWHTiscRunningInterval - 5)
+            }
             # Debug info
             :if ($DebugIsOn) do={
                 :log warning ""
