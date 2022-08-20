@@ -267,8 +267,9 @@
 
 ###### ISP TYPES, PRESENSE AND DHCP/STATIC TUNNINGS ######
 
-### UNDER CONSTRUCTION ###  ### UNDER CONSTRUCTION ###  ### UNDER CONSTRUCTION ###  ### UNDER CONSTRUCTION ###  ### UNDER CONSTRUCTION ###  ### UNDER CONSTRUCTION ###  
-###### HEALTH CHECKS AND ROUTING TABLES ########
+
+
+###### HEALTH CHECKS, ROUTING TABLES, ROUTING RULES ########
 
 #
 # Set and Deploy HealthCheck GW for ISP1 in case when ISP1 type is present
@@ -426,37 +427,62 @@
     # Adding + 1 to ISPsCounter
     :set $ISPsCounter ($ISPsCounter + 1)
 
-    # Getting current ISP2_HC_RT for comparison and if there is no HC_RT deploy one
+    # Getting current ISP2_HC1_RT for comparison and if there is no HC_RT deploy one
     :do {
-        :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
+        :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC1_RT"]]
         } on-error={
             :set $ISP2currentHCGW "169.254.0.1"
-            :local ISP2hcNeedToBeDeployed true
-    # Getting current ISP2_HC_RR for comparison and if there is no HC_RR deploy one
-        :local ISP2currentHCRR [/ip route rule get value-name=dst-address [find where comment~"ISP2_HC_RR"]]
+            /ip route add check-gateway=ping comment="ISP2_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
+            }
+    
+    # Getting current ISP2_HC2_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC2_RT"]]
         } on-error={
-            :set $ISP2currentHCRR "169.254.1.1"
-            :local ISP2hcrrNeedToBeDeployed true
-
-            :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: Error when getting ISP2_HC_RT params, perhaps RTR is missing..."
-                :log warning "$scriptname: Adding a new one..."
-                :log warning "$scriptname: ISP2currentHCGW: $ISP2currentHCGW"
-                :log warning "$scriptname: ISP2hcNeedToBeDeployed: $ISP2hcNeedToBeDeployed"
+            :set $ISP2currentHCGW "169.254.0.1"
+            /ip route add check-gateway=ping comment="ISP2_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
+            }
+    
+    # Getting current ISP2_HC3_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC3_RT"]]
+        } on-error={
+            :set $ISP2currentHCGW "169.254.0.1"
+            /ip route add check-gateway=ping comment="ISP2_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3/32 gateway=$ISP2currentHCGW routing-mark=isp2_hc_rt
             }
 
-            # Deploy ISP2_HC_RT if needed.
-            :if ($ISP2hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP2_HC_RT | Managed by ros-wht" distance=1 dst-address=169.254.1.1/32 gateway=169.0.0.1 routing-mark=isp2_hc_rt
-                }
-            # Deploy ISP2_HC_RR if needed.
-            :if ($ISP2hcrrNeedToBeDeployed) do={
-                /ip route rule add action=lookup-only-in-table comment="ISP2_HC_RR | Managed by ros-wht" dst-address=169.254.1.1/32 routing-mark=isp2_hc_rt table=isp2_hc_rt
-                }
-            }
+### Section for getting and comparing HC route rules ###
+    # Getting current ISP2_HC1_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP2currentHC1RR [/ip route rule get value-name=dst-address [find where comment~"ISP2_HC1_RR"]]
+        :if ($ISP2currentHC1RR != $HCaddr1) do={
+            /ip route rule set dst-address=$HCaddr1
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP2_HC1_RR | Managed by ros-wht" dst-address=$HCaddr1 routing-mark=isp2_hc_rt table=isp2_hc_rt
+        }
 
-                
+    # Getting current ISP2_HC2_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP2currentHC2RR [/ip route rule get value-name=dst-address [find where comment~"ISP2_HC2_RR"]]
+        :if ($ISP2currentHC2RR != $HCaddr2) do={
+            /ip route rule set dst-address=$HCaddr2
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP2_HC2_RR | Managed by ros-wht" dst-address=$HCaddr2 routing-mark=isp2_hc_rt table=isp2_hc_rt
+        }
+
+    # Getting current ISP2_HC3_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP2currentHC3RR [/ip route rule get value-name=dst-address [find where comment~"ISP2_HC3_RR"]]
+        :if ($ISP2currentHC3RR != $HCaddr3) do={
+            /ip route rule set dst-address=$HCaddr3
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP2_HC3_RR | Managed by ros-wht" dst-address=$HCaddr3 routing-mark=isp2_hc_rt table=isp2_hc_rt
+        }
+### Section for getting and comparing HC route rules ###
+
     # ISP2 is static
         :if ($ISP2type = "STATIC") do={
                 # Getting current ISP2_DGW_RT for comparison
@@ -550,37 +576,62 @@
     # Adding + 1 to ISPsCounter
     :set $ISPsCounter ($ISPsCounter + 1)
 
-    # Getting current ISP3_HC_RT for comparison and if there is no HC_RT deploy one
+    # Getting current ISP3_HC1_RT for comparison and if there is no HC_RT deploy one
     :do {
-        :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC_RT"]]
+        :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC1_RT"]]
         } on-error={
             :set $ISP3currentHCGW "169.254.0.1"
-            :local ISP3hcNeedToBeDeployed true
-    # Getting current ISP3_HC_RR for comparison and if there is no HC_RR deploy one
-        :local ISP3currentHCRR [/ip route rule get value-name=dst-address [find where comment~"ISP3_HC_RR"]]
+            /ip route add check-gateway=ping comment="ISP3_HC1_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr1/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
+            }
+    
+    # Getting current ISP3_HC2_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC2_RT"]]
         } on-error={
-            :set $ISP3currentHCRR "169.254.1.1"
-            :local ISP3hcrrNeedToBeDeployed true
-
-            :if ($DebugIsOn) do={
-                :log warning ""
-                :log warning "$scriptname: Error when getting ISP3_HC_RT params, perhaps RTR is missing..."
-                :log warning "$scriptname: Adding a new one..."
-                :log warning "$scriptname: ISP3currentHCGW: $ISP3currentHCGW"
-                :log warning "$scriptname: ISP3hcNeedToBeDeployed: $ISP3hcNeedToBeDeployed"
+            :set $ISP3currentHCGW "169.254.0.1"
+            /ip route add check-gateway=ping comment="ISP3_HC2_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr2/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
+            }
+    
+    # Getting current ISP3_HC3_RT for comparison and if there is no HC_RT deploy one
+    :do {
+        :local ISP3currentHCGW [/ip route get value-name=gateway [find where comment~"ISP3_HC3_RT"]]
+        } on-error={
+            :set $ISP3currentHCGW "169.254.0.1"
+            /ip route add check-gateway=ping comment="ISP3_HC3_RT | Managed by ros-wht" distance=1 dst-address=$HCaddr3/32 gateway=$ISP3currentHCGW routing-mark=isp3_hc_rt
             }
 
-            # Deploy ISP3_HC_RT if needed.
-            :if ($ISP3hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP3_HC_RT | Managed by ros-wht" distance=1 dst-address=169.254.1.1/32 gateway=169.0.0.1 routing-mark=isp3_hc_rt
-                }
-            # Deploy ISP3_HC_RR if needed.
-            :if ($ISP3hcrrNeedToBeDeployed) do={
-                /ip route rule add action=lookup-only-in-table comment="ISP3_HC_RR | Managed by ros-wht" dst-address=169.254.1.1/32 routing-mark=isp3_hc_rt table=isp3_hc_rt
-                }
-            }
+### Section for getting and comparing HC route rules ###
+    # Getting current ISP3_HC1_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP3currentHC1RR [/ip route rule get value-name=dst-address [find where comment~"ISP3_HC1_RR"]]
+        :if ($ISP3currentHC1RR != $HCaddr1) do={
+            /ip route rule set dst-address=$HCaddr1
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP3_HC1_RR | Managed by ros-wht" dst-address=$HCaddr1 routing-mark=isp3_hc_rt table=isp3_hc_rt
+        }
 
-                
+    # Getting current ISP3_HC2_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP3currentHC2RR [/ip route rule get value-name=dst-address [find where comment~"ISP3_HC2_RR"]]
+        :if ($ISP3currentHC2RR != $HCaddr2) do={
+            /ip route rule set dst-address=$HCaddr2
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP3_HC2_RR | Managed by ros-wht" dst-address=$HCaddr2 routing-mark=isp3_hc_rt table=isp3_hc_rt
+        }
+
+    # Getting current ISP3_HC3_RR for comparison and if there is no HC_RR deploy one
+    :do {
+        :local ISP3currentHC3RR [/ip route rule get value-name=dst-address [find where comment~"ISP3_HC3_RR"]]
+        :if ($ISP3currentHC3RR != $HCaddr3) do={
+            /ip route rule set dst-address=$HCaddr3
+        }
+        } on-error={
+            /ip route rule add action=lookup-only-in-table comment="ISP3_HC3_RR | Managed by ros-wht" dst-address=$HCaddr3 routing-mark=isp3_hc_rt table=isp3_hc_rt
+        }
+### Section for getting and comparing HC route rules ###
+
     # ISP3 is static
         :if ($ISP3type = "STATIC") do={
                 # Getting current ISP3_DGW_RT for comparison
@@ -666,7 +717,7 @@
 #
 
 
-###### HEALTH CHECKS AND ROUTING TABLES ########
+###### HEALTH CHECKS, ROUTING TABLES, ROUTING RULES ########
 
 
 :if (!$DebugIsOn) do={
