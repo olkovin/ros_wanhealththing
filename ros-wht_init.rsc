@@ -23,7 +23,7 @@
 :if ($DebugIsOn) do={
     :do {
         /system scheduler remove [find where comment~"ros-wht"]
-        /ip route remove [find where comment~"ros-wht" && comment~"HC" && "_RT"]
+        /ip route remove [find where comment~"ros-wht" && comment~"HC" && comment~"_RT"]
         /system script environment remove [find where name!="DebugIsOn"]
         /system script job remove [find where script~"ros-wht_isc"]
         /ip route rule remove [find where comment~"ros-wht"]
@@ -97,14 +97,14 @@
 } else={
                 # Checking if there are pinging parameters and healthchecks was set
             # If not, setting to default
-            :if ($pingsinterval = "default") do={
-                :set $pingsinterval "1"
+            :if ($pingscount = "default") do={
+                :set $pingscount "2"
 
                 # Displaying debug info, if DebuIsOn True
                 :if ($DebugIsOn) do={
                     :log warning ""
-                    :log warning "$scriptname:  Used default pingsinterval = $pingsinterval"
-                    :log warning "$scriptname: pingsinterval is $pingsinterval"
+                    :log warning "$scriptname:  Used default pingscount = $pingscount"
+                    :log warning "$scriptname: pingscount is $pingscount"
                     :log warning ""
                 }
             }
@@ -119,14 +119,14 @@
     :log warning "$scriptname: converting pingsinterval to number..."
     }
 } else={
-            :if ($pingscount = "default") do={
-                :set $pingscount "2"
+            :if ($pingsinterval = "default") do={
+                :set $pingsinterval "2"
 
                 # Displaying debug info, if DebuIsOn True
                 :if ($DebugIsOn) do={
                     :log warning ""
-                    :log warning "$scriptname:  Used default pingscount = $pingscount"
-                    :log warning "$scriptname: pingscount is $pingscount"
+                    :log warning "$scriptname:  Used default pingsinterval = $pingsinterval"
+                    :log warning "$scriptname: pingsinterval is $pingsinterval"
                     :log warning ""
                 }
             }
