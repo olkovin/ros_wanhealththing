@@ -25,7 +25,7 @@
 # Hint: 
 :global pingsinterval
 :global pingscount
-:global rosWHTrunningInterval
+:global rosWHTiscRunningInterval
 :global rosWHTiscDeamonPaused
 :global DebugIsOn
 
@@ -56,11 +56,11 @@
                 }
 
                 # Fixing the script running time
-                    :global rosWHTScriptRunStartUptimeStamp [/system resource get value-name=uptime]
+                    :global rosWHTiscScriptRunStartUptimeStamp [/system resource get value-name=uptime]
                     
                     :if ($DebugIsOn) do={
                                 :log warning ""
-                                :log warning "$scriptname:  rosWHTScriptRunStartUptimeStamp is $rosWHTScriptRunStartUptimeStamp"
+                                :log warning "$scriptname:  rosWHTiscScriptRunStartUptimeStamp is $rosWHTiscScriptRunStartUptimeStamp"
                                 :log warning ""
                     }
 
@@ -284,33 +284,33 @@
 
                 # Alighing scheduler interval to the script runnign time
 
-                        :global rosWHTScriptRunStartUptimeStamp
-                        :global rosWHTScriptRunFinishUptimeStamp [/system resource get value-name=uptime]
-                        :global rosWHTScriptRunTime 
-                        :set $rosWHTScriptRunTime ($rosWHTScriptRunFinishUptimeStamp - $rosWHTScriptRunStartUptimeStamp)   
+                        :global rosWHTiscScriptRunStartUptimeStamp
+                        :global rosWHTiscScriptRunFinishUptimeStamp [/system resource get value-name=uptime]
+                        :global rosWHTiscScriptRunTime 
+                        :set $rosWHTiscScriptRunTime ($rosWHTiscScriptRunFinishUptimeStamp - $rosWHTiscScriptRunStartUptimeStamp)   
 
 
 
                 # Showing the script running time in debug mode
                     :if ($DebugIsOn) do={
                                 :log warning ""
-                                :log warning "$scriptname:  rosWHTScriptRunStartUptimeStamp is $rosWHTScriptRunStartUptimeStamp"
-                                :log warning "$scriptname:  rosWHTScriptRunFinishUptimeStamp is $rosWHTScriptRunFinishUptimeStamp"
-                                :log warning "$scriptname:  rosWHTScriptRunTime is $rosWHTScriptRunTime"
+                                :log warning "$scriptname:  rosWHTiscScriptRunStartUptimeStamp is $rosWHTiscScriptRunStartUptimeStamp"
+                                :log warning "$scriptname:  rosWHTiscScriptRunFinishUptimeStamp is $rosWHTiscScriptRunFinishUptimeStamp"
+                                :log warning "$scriptname:  rosWHTiscScriptRunTime is $rosWHTiscScriptRunTime"
                                 :log warning ""
                     }
 
-                # Incorrect scheduler interval fix
+            # Incorrect scheduler interval fix
 
             :local currentISCinterval
-            :set $rosWHTrunningInterval ($rosWHTScriptRunTime + 00:00:05)
+            :set $rosWHTiscRunningInterval ($rosWHTiscScriptRunTime + 00:00:05)
 
                     # Displaying debug info, if DebuIsOn True
                 :if ($DebugIsOn) do={
                     :log warning ""
                     :log warning "$scriptname: intervaling debug point 1 pass :)"
                     :log warning "$scriptname: ISPcount is $ISPcount"
-                    :log warning "$scriptname: rosWHTrunningInterval is $rosWHTrunningInterval"
+                    :log warning "$scriptname: rosWHTiscRunningInterval is $rosWHTiscRunningInterval"
                     :log warning ""
                 }
 
@@ -329,10 +329,10 @@
                         :if ($DebugIsOn) do={
                             :log warning ""
                             :log warning "$scriptname: Adding the $scriptname scheduler..."
-                            :log warning "$scriptname: Correct ISC interval is $rosWHTrunningInterval"
+                            :log warning "$scriptname: Correct ISC interval is $rosWHTiscRunningInterval"
                             :log warning ""
                         }
-                        /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$rosWHTrunningInterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
+                        /system scheduler add comment="$scriptname | deamon script | reccurently running on the automatically tuned interval" interval=$rosWHTiscRunningInterval name="$scriptname-deamon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup on-event="$scriptname" disabled=no
                             :if ($DebugIsOn) do={
                             :log warning ""
                             :log warning "$scriptname: The $scriptname scheduler succesfully added!"
@@ -348,15 +348,15 @@
                     }
                 }
 
-            :if ($currentISCinterval != $rosWHTrunningInterval) do={
+            :if ($currentISCinterval != $rosWHTiscRunningInterval) do={
                             
                             :if ($DebugIsOn) do={
                             :log warning ""
                             :log warning "$scriptname: The $scriptname scheduler interval was setted incorrect."
-                            :log warning "$scriptname: ISC interval was set to $rosWHTrunningInterval"
+                            :log warning "$scriptname: ISC interval was set to $rosWHTiscRunningInterval"
                             :log warning ""
                             }
-                /system scheduler set interval=$rosWHTrunningInterval [find where name~"$scriptname-deamon"]
+                /system scheduler set interval=$rosWHTiscRunningInterval [find where name~"$scriptname-deamon"]
             } else={
                             :if ($DebugIsOn) do={
                             :log warning ""
