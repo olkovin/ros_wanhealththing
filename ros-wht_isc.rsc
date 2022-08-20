@@ -27,6 +27,7 @@
 :global pingscount
 :global rosWHTiscRunningInterval
 :global rosWHTiscDeamonPaused
+:global rosWHTiscInitCounterTrigger
 :global DebugIsOn
 
 
@@ -375,6 +376,26 @@
                     :log warning ""
                 }
                 }
+:if ($rosWHTiscInitCounterTrigger = 2) do={
+    
+    :if ($DebugIsOn) do={
+    :log warning ""
+    :log warning "$scriptname: rosWHTiscInitCounterTrigger reached $rosWHTiscInitCounterTrigger"
+    :log warning "$scriptname: Starting the ros-wht_icp..."
+    :log warning ""
+    }
+    /system script run ros-wht_icp
+    } else={
+            :if ($DebugIsOn) do={
+                :log warning ""
+                :log warning "$scriptname: rosWHTiscInitCounterTrigger isn't reached desired value"
+                :log warning "$scriptname: Waiting before starting the ros-wht_icp..."
+                :log warning "$scriptname: rosWHTiscInitCounterTrigger increased by 1"
+                :log warning ""
+            }
+        :set $rosWHTiscInitCounterTrigger ($rosWHTiscInitCounterTrigger + 1)
+}
+
 } else={
 
     :if ($DebugIsOn) do={
