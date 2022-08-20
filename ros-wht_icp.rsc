@@ -47,11 +47,15 @@
         :global ISP1hpPrevious
         :global ISP1type
         
-        :if ($ISP1hpOld != $ISP1hpLatest) do={
+        :if ($ISP1hpPrevious != $ISP1hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
+            :if (($rosWHTrunningInterval - 5) <= 0) do={
+                :delay 1
+            } else={
             :delay ($rosWHTrunningInterval - 5)
+            }
 
             # Debug info
             :if ($DebugIsOn) do={
@@ -221,7 +225,7 @@
         :global ISP2hpPrevious
         :global ISP2type
         
-        :if ($ISP2hpOld != $ISP2hpLatest) do={
+        :if ($ISP2hpPrevious != $ISP2hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
@@ -395,7 +399,7 @@
         :global ISP3hpPrevious
         :global ISP3type
         
-        :if ($ISP3hpOld != $ISP3hpLatest) do={
+        :if ($ISP3hpPrevious != $ISP3hpLatest) do={
             # Temporary disabling ros-wht_isc deamon
             :set $rosWHTiscDeamonPaused true
             # Waiting, before previous runned isc task will be finished
