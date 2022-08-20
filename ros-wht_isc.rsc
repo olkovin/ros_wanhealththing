@@ -71,33 +71,6 @@
                     :log warning ""
                 }
 
-
-            # Checking if there are pinging parameters and healthchecks was set
-            # If not, setting to default
-            :if ($pingsinterval = "default") do={
-                :set $pingsinterval "1"
-
-                # Displaying debug info, if DebuIsOn True
-                :if ($DebugIsOn) do={
-                    :log warning ""
-                    :log warning "$scriptname:  Used default pingsinterval = $pingsinterval"
-                    :log warning "$scriptname: pingsinterval is $pingsinterval"
-                    :log warning ""
-                }
-            }
-
-            :if ($pingscount = "default") do={
-                :set $pingscount "2"
-
-                # Displaying debug info, if DebuIsOn True
-                :if ($DebugIsOn) do={
-                    :log warning ""
-                    :log warning "$scriptname:  Used default pingscount = $pingscount"
-                    :log warning "$scriptname: pingscount is $pingscount"
-                    :log warning ""
-                }
-            }
-
             # Calculating max health per ISP
             :global ISPhpGood
             :local ISPhpGoodCalculated ($pingscount * 3)
@@ -217,7 +190,8 @@
                 :local ISP1partialstate2
                 :local ISP1partialstate3
 
-                # Checking the healthchecks and setting the ISPstate
+                # Checking if the healthchecks are reachable only from specific RT, checking HC and setting the ISPstate
+                
                 ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##    ## LOOKUP ONLY IN TABLE NEED TO BE ADDED ##
                 :set $ISP1partialstate1 [/ping $HCaddr1 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]
                 :set $ISP1partialstate2 [/ping $HCaddr2 interval=$pingsinterval count=$pingscount routing-table=isp1_hc_rt]

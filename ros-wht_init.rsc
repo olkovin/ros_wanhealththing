@@ -93,6 +93,20 @@
     :log warning "$scriptname: converting pingscount to number..."
     }
 
+} else={
+                # Checking if there are pinging parameters and healthchecks was set
+            # If not, setting to default
+            :if ($pingsinterval = "default") do={
+                :set $pingsinterval "1"
+
+                # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname:  Used default pingsinterval = $pingsinterval"
+                    :log warning "$scriptname: pingsinterval is $pingsinterval"
+                    :log warning ""
+                }
+            }
 }
 
 :if ($pingsinterval != "default") do={
@@ -103,6 +117,18 @@
     :log warning "$scriptname: pingsinterval is not default."
     :log warning "$scriptname: converting pingsinterval to number..."
     }
+} else={
+            :if ($pingscount = "default") do={
+                :set $pingscount "2"
+
+                # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname:  Used default pingscount = $pingscount"
+                    :log warning "$scriptname: pingscount is $pingscount"
+                    :log warning ""
+                }
+            }
 }
 
 ################
@@ -224,6 +250,11 @@
         } on-error={
             :set $ISP1currentHCGW "169.254.0.1"
             :local ISP1hcNeedToBeDeployed true
+    # Getting current ISP1_HC_RR for comparison and if there is no HC_RR deploy one
+        :local ISP1currentHCRR [/ip route rule get value-name=dst-address [find where comment~"ISP1_HC_RR"]]
+        } on-error={
+            :set $ISP1currentHCRR "169.254.1.1"
+            :local ISP1hcrrNeedToBeDeployed true
 
             :if ($DebugIsOn) do={
                 :log warning ""
@@ -233,9 +264,13 @@
                 :log warning "$scriptname: ISP1hcNeedToBeDeployed: $ISP1hcNeedToBeDeployed"
             }
 
-                        # Deploy ISP1_HC_RT if needed.
+            # Deploy ISP1_HC_RT if needed.
             :if ($ISP1hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP1_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp1_hc_rt
+                /ip route add check-gateway=ping comment="ISP1_HC_RT | Managed by ros-wht" distance=1 dst-address=169.254.1.1/32 gateway=169.0.0.1 routing-mark=isp1_hc_rt
+                }
+            # Deploy ISP1_HC_RR if needed.
+            :if ($ISP1hcrrNeedToBeDeployed) do={
+                /ip route rule add action=lookup-only-in-table comment="ISP1_HC_RR | Managed by ros-wht" dst-address=169.254.1.1/32 routing-mark=isp1_hc_rt table=isp1_hc_rt
                 }
             }
 
@@ -252,7 +287,7 @@
                     :log warning "$scriptname: ISP1_DGW_RT aligned."
                     }
 
-                # Realising compare logic for STATIC.
+                # Realising compare logic for HC_GW and STATIC.
                 :if ($ISP1currentHCGW != $ISP1staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP1_HC with getted ISP1staticGW
@@ -272,6 +307,7 @@
                                     }
                                     }
                                     }
+
         } else={
             :if ($ISP1type = "DHCP") do={
                 # Getting current ISP1dhcpGW for comparison
@@ -319,9 +355,9 @@
                                     :log warning "$scriptname: I_I "
                                     }
         }
-        #
-        ##
-        #
+#
+##
+#
 
 
 
@@ -329,16 +365,20 @@
 # Set and Deploy HealthCheck GW for ISP2 in case when ISP2 type is present
 #
 :if ($ISP2present) do={
-    
     # Adding + 1 to ISPsCounter
     :set $ISPsCounter ($ISPsCounter + 1)
-    
+
     # Getting current ISP2_HC_RT for comparison and if there is no HC_RT deploy one
     :do {
         :local ISP2currentHCGW [/ip route get value-name=gateway [find where comment~"ISP2_HC_RT"]]
         } on-error={
             :set $ISP2currentHCGW "169.254.0.1"
             :local ISP2hcNeedToBeDeployed true
+    # Getting current ISP2_HC_RR for comparison and if there is no HC_RR deploy one
+        :local ISP2currentHCRR [/ip route rule get value-name=dst-address [find where comment~"ISP2_HC_RR"]]
+        } on-error={
+            :set $ISP2currentHCRR "169.254.1.1"
+            :local ISP2hcrrNeedToBeDeployed true
 
             :if ($DebugIsOn) do={
                 :log warning ""
@@ -348,9 +388,13 @@
                 :log warning "$scriptname: ISP2hcNeedToBeDeployed: $ISP2hcNeedToBeDeployed"
             }
 
-                        # Deploy ISP2_HC_RT if needed.
+            # Deploy ISP2_HC_RT if needed.
             :if ($ISP2hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP2_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp2_hc_rt
+                /ip route add check-gateway=ping comment="ISP2_HC_RT | Managed by ros-wht" distance=1 dst-address=169.254.1.1/32 gateway=169.0.0.1 routing-mark=isp2_hc_rt
+                }
+            # Deploy ISP2_HC_RR if needed.
+            :if ($ISP2hcrrNeedToBeDeployed) do={
+                /ip route rule add action=lookup-only-in-table comment="ISP2_HC_RR | Managed by ros-wht" dst-address=169.254.1.1/32 routing-mark=isp2_hc_rt table=isp2_hc_rt
                 }
             }
 
@@ -361,13 +405,13 @@
                 :local ISP2staticGW [/ip route get value-name=gateway [find where comment~"ISP2_DGW_RT"]]
 
                 # Alligning DGW route distance for ISP2 if needed
-                /ip route set distance=20 comment="ISP2_DGW_RT | Managed by ros-wht" [find where comment~"ISP2_DGW_RT" && distance!=20]
+                /ip route set distance=10 comment="ISP2_DGW_RT | Managed by ros-wht" [find where comment~"ISP2_DGW_RT" && distance!=10]
                 :if ($DebugIsOn) do={
                     :log warning ""
                     :log warning "$scriptname: ISP2_DGW_RT aligned."
                     }
 
-                # Realising compare logic for STATIC.
+                # Realising compare logic for HC_GW and STATIC.
                 :if ($ISP2currentHCGW != $ISP2staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP2_HC with getted ISP2staticGW
@@ -387,13 +431,14 @@
                                     }
                                     }
                                     }
+
         } else={
             :if ($ISP2type = "DHCP") do={
                 # Getting current ISP2dhcpGW for comparison
                 :global ISP2dhcpGW
                 # If there is no ISP2dhcpGW, initialize DHCP-script adding
                 :if ($ISP2dhcpGW = nothing) do={
-                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=20 comment="ISP2 DHCP Client | Managed by ros-wht" [find where comment="ISP2"] 
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP2dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=10 comment="ISP2 DHCP Client | Managed by ros-wht" [find where comment="ISP2"] 
                     /ip dhcp-client set disabled=yes [find where comment~"ISP2"]
                     /ip dhcp-client set disabled=no [find where comment~"ISP2"]
                     :delay 5
@@ -434,9 +479,9 @@
                                     :log warning "$scriptname: I_I "
                                     }
         }
-        #
-        ##
-        #
+#
+##
+#
 
 
 
@@ -444,7 +489,6 @@
 # Set and Deploy HealthCheck GW for ISP3 in case when ISP3 type is present
 #
 :if ($ISP3present) do={
-
     # Adding + 1 to ISPsCounter
     :set $ISPsCounter ($ISPsCounter + 1)
 
@@ -454,6 +498,11 @@
         } on-error={
             :set $ISP3currentHCGW "169.254.0.1"
             :local ISP3hcNeedToBeDeployed true
+    # Getting current ISP3_HC_RR for comparison and if there is no HC_RR deploy one
+        :local ISP3currentHCRR [/ip route rule get value-name=dst-address [find where comment~"ISP3_HC_RR"]]
+        } on-error={
+            :set $ISP3currentHCRR "169.254.1.1"
+            :local ISP3hcrrNeedToBeDeployed true
 
             :if ($DebugIsOn) do={
                 :log warning ""
@@ -463,9 +512,13 @@
                 :log warning "$scriptname: ISP3hcNeedToBeDeployed: $ISP3hcNeedToBeDeployed"
             }
 
-                        # Deploy ISP3_HC_RT if needed.
+            # Deploy ISP3_HC_RT if needed.
             :if ($ISP3hcNeedToBeDeployed) do={
-                /ip route add check-gateway=ping comment="ISP3_HC_RT | Managed by ros-wht" distance=1 gateway=169.0.0.1 routing-mark=isp3_hc_rt
+                /ip route add check-gateway=ping comment="ISP3_HC_RT | Managed by ros-wht" distance=1 dst-address=169.254.1.1/32 gateway=169.0.0.1 routing-mark=isp3_hc_rt
+                }
+            # Deploy ISP3_HC_RR if needed.
+            :if ($ISP3hcrrNeedToBeDeployed) do={
+                /ip route rule add action=lookup-only-in-table comment="ISP3_HC_RR | Managed by ros-wht" dst-address=169.254.1.1/32 routing-mark=isp3_hc_rt table=isp3_hc_rt
                 }
             }
 
@@ -476,13 +529,13 @@
                 :local ISP3staticGW [/ip route get value-name=gateway [find where comment~"ISP3_DGW_RT"]]
 
                 # Alligning DGW route distance for ISP3 if needed
-                /ip route set distance=30 comment="ISP3_DGW_RT | Managed by ros-wht" [find where comment~"ISP3_DGW_RT" && distance!=30]
+                /ip route set distance=10 comment="ISP3_DGW_RT | Managed by ros-wht" [find where comment~"ISP3_DGW_RT" && distance!=10]
                 :if ($DebugIsOn) do={
                     :log warning ""
                     :log warning "$scriptname: ISP3_DGW_RT aligned."
                     }
 
-                # Realising compare logic for STATIC.
+                # Realising compare logic for HC_GW and STATIC.
                 :if ($ISP3currentHCGW != $ISP3staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP3_HC with getted ISP3staticGW
@@ -502,13 +555,14 @@
                                     }
                                     }
                                     }
+
         } else={
             :if ($ISP3type = "DHCP") do={
                 # Getting current ISP3dhcpGW for comparison
                 :global ISP3dhcpGW
                 # If there is no ISP3dhcpGW, initialize DHCP-script adding
                 :if ($ISP3dhcpGW = nothing) do={
-                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=30 comment="ISP3 DHCP Client | Managed by ros-wht" [find where comment="ISP3"] 
+                    /ip dhcp-client set script=":if (\$bound=1) do={:global ISP3dhcpGW \"\$\"gateway-address\"\"}" default-route-distance=10 comment="ISP3 DHCP Client | Managed by ros-wht" [find where comment="ISP3"] 
                     /ip dhcp-client set disabled=yes [find where comment~"ISP3"]
                     /ip dhcp-client set disabled=no [find where comment~"ISP3"]
                     :delay 5
@@ -549,9 +603,9 @@
                                     :log warning "$scriptname: I_I "
                                     }
         }
-        #
-        ##
-        #
+#
+##
+#
 
 
 ###### HEALTH CHECKS AND ROUTING TABLES ########
