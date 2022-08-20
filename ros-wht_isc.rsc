@@ -384,6 +384,7 @@
     :log warning "$scriptname: Starting the ros-wht_icp..."
     :log warning ""
     }
+    :set $rosWHTiscInitCounterTrigger ($rosWHTiscInitCounterTrigger + 1)
     /system script run ros-wht_icp
     } else={
             :if ($DebugIsOn) do={
