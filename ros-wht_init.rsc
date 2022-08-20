@@ -23,7 +23,7 @@
 :if ($DebugIsOn) do={
     :do {
         /system scheduler remove [find where comment~"ros-wht"]
-        /ip route remove [find where comment~"ros-wht" && comment~"HC_RT"]
+        /ip route remove [find where comment~"ros-wht" && comment~"HC" && "_RT"]
         /system script environment remove [find where name!="DebugIsOn"]
         /system script job remove [find where script~"ros-wht_isc"]
         /ip route rule remove [find where comment~"ros-wht"]
@@ -351,7 +351,7 @@
                 :if ($ISP1currentHCGW != $ISP1staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP1_HC with getted ISP1staticGW
-                    /ip route set gateway=$ISP1staticGW [find where comment~"ISP1_HC" && "_RT" && gateway!=$ISP1staticGW]
+                    /ip route set gateway=$ISP1staticGW [find where routing-mark=isp1_hc_rt && gateway!=$ISP1staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP1_HC_GW is not the same with current ISP1_DGW_RT"
@@ -384,7 +384,7 @@
                 :if ($ISP1currentHCGW != $ISP1dhcpGW) do={
                     # Situation when current HC GW is different with new
                     # Seting the ISP1_HC with getted ISP1dhcpGW
-                    /ip route set gateway=$ISP1dhcpGW [find where comment~"ISP1_HC" && "_RT" && gateway!=ISP1staticGW]
+                    /ip route set gateway=$ISP1dhcpGW [find where routing-mark=isp1_hc_rt && gateway!=ISP1staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP1_HC_GW is not the same with current ISP1dhcpGW"
@@ -500,7 +500,7 @@
                 :if ($ISP2currentHCGW != $ISP2staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP2_HC with getted ISP2staticGW
-                    /ip route set gateway=$ISP2staticGW [find where comment~"ISP2_HC" && "_RT" && gateway!=$ISP2staticGW]
+                    /ip route set gateway=$ISP2staticGW [find where routing-mark=isp2_hc_rt && gateway!=$ISP2staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP2_HC_GW is not the same with current ISP2_DGW_RT"
@@ -533,7 +533,7 @@
                 :if ($ISP2currentHCGW != $ISP2dhcpGW) do={
                     # Situation when current HC GW is different with new
                     # Seting the ISP2_HC with getted ISP2dhcpGW
-                    /ip route set gateway=$ISP2dhcpGW [find where comment~"ISP2_HC" && "_RT" && gateway!=ISP2staticGW]
+                    /ip route set gateway=$ISP2dhcpGW [find where routing-mark=isp2_hc_rt && gateway!=ISP2staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP2_HC_GW is not the same with current ISP2dhcpGW"
@@ -649,7 +649,7 @@
                 :if ($ISP3currentHCGW != $ISP3staticGW) do={
                     # Situation when current HC GW is different with new one
                     # Seting the ISP3_HC with getted ISP3staticGW
-                    /ip route set gateway=$ISP3staticGW [find where comment~"ISP3_HC" && "_RT" && gateway!=$ISP3staticGW]
+                    /ip route set gateway=$ISP3staticGW [find where routing-mark=isp3_hc_rt && gateway!=$ISP3staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP3_HC_GW is not the same with current ISP3_DGW_RT"
@@ -682,7 +682,7 @@
                 :if ($ISP3currentHCGW != $ISP3dhcpGW) do={
                     # Situation when current HC GW is different with new
                     # Seting the ISP3_HC with getted ISP3dhcpGW
-                    /ip route set gateway=$ISP3dhcpGW [find where comment~"ISP3_HC" && "_RT" && gateway!=ISP3staticGW]
+                    /ip route set gateway=$ISP3dhcpGW [find where routing-mark=isp3_hc_rt && gateway!=ISP3staticGW]
                     :if ($DebugIsOn) do={
                         :log warning ""
                         :log warning "$scriptname: Current ISP3_HC_GW is not the same with current ISP3dhcpGW"
