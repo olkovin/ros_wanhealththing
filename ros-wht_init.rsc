@@ -131,6 +131,39 @@
             }
 }
 
+            :if ($HCaddr1 = "default") do={
+                :set $HCaddr1 "1.1.1.1"
+
+                    # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname:  Used default HCaddr1 = $HCaddr1"
+                    :log warning ""
+                }
+            }
+
+            :if ($HCaddr2 = "default") do={
+                :set $HCaddr2 "9.9.9.9"
+
+                    # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname:  Used default HCaddr2 = $HCaddr2"
+                    :log warning ""
+                }
+            }
+
+            :if ($HCaddr3 = "default") do={
+                :set $HCaddr3 "8.8.8.8"
+
+                    # Displaying debug info, if DebuIsOn True
+                :if ($DebugIsOn) do={
+                    :log warning ""
+                    :log warning "$scriptname:  Used default HCaddr3 = $HCaddr3"
+                    :log warning ""
+                }
+            }
+
 ################
 # ISPs types and count determinator v3
 #
